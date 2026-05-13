@@ -16,12 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { labels } from "@/lib/format";
 import { hasActiveFilters, useAppStore } from "@/lib/store";
-import type {
-  CustomerStatus,
-  CustomerType,
-  GardenType,
-  Service,
-} from "@/lib/customers";
+import type { CustomerStatus, CustomerType, Service } from "@/lib/customers";
 
 const STATUS_ORDER: CustomerStatus[] = ["aktiv", "neu", "vip", "wartung-faellig", "saison-pause"];
 const TYPE_ORDER: CustomerType[] = ["privat", "gewerbe", "oeffentlich"];

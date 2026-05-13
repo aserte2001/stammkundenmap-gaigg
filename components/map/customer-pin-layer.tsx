@@ -248,7 +248,7 @@ export function CustomerPinLayer() {
       if (pulseRef.current) cancelAnimationFrame(pulseRef.current);
       return;
     }
-    let start = performance.now();
+    const start = performance.now();
     const tick = (now: number) => {
       if (!map.getLayer("gaigg-selected-pulse")) return;
       const t = (now - start) / 1400;

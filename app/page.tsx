@@ -1,5 +1,6 @@
 import { CommandPalette } from "@/components/command-palette";
 import { DetailPanel } from "@/components/detail-panel/detail-panel";
+import { KeyboardNav } from "@/components/keyboard-nav";
 import { ClusterHeatLayer } from "@/components/map/cluster-heat-layer";
 import { CustomerPinLayer } from "@/components/map/customer-pin-layer";
 import { IntroAnimation } from "@/components/map/intro-animation";
@@ -7,6 +8,7 @@ import { MapControls } from "@/components/map/map-controls";
 import { MapShell } from "@/components/map/map-shell";
 import { MapStyleSwitcher } from "@/components/map/map-style-switcher";
 import { ThreeDBuildingsLayer } from "@/components/map/three-d-buildings-layer";
+import { ShortcutsDialog } from "@/components/shortcuts-dialog";
 import { Sidebar } from "@/components/sidebar/sidebar";
 
 export default function HomePage() {
@@ -23,6 +25,8 @@ export default function HomePage() {
       <Sidebar />
       <DetailPanel />
       <CommandPalette />
+      <ShortcutsDialog />
+      <KeyboardNav />
 
       <header className="pointer-events-none absolute right-4 top-4 z-20 flex items-center gap-2">
         <div className="pointer-events-auto">

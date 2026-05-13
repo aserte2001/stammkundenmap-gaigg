@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
 type Props = {
@@ -9,10 +9,6 @@ type Props = {
 
 export function SplatIframe({ url }: Props) {
   const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    setLoaded(false);
-  }, [url]);
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-2xl bg-card">
@@ -23,6 +19,7 @@ export function SplatIframe({ url }: Props) {
         </div>
       ) : null}
       <iframe
+        key={url}
         src={url}
         title="3D-Garten-Erfassung"
         className="h-full w-full"

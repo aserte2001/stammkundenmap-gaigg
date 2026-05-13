@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { DEFAULT_VIEW } from "@/lib/map-config";
@@ -15,11 +15,11 @@ export function IntroAnimation() {
   const isIntroComplete = useAppStore((s) => s.isIntroComplete);
   const markIntroComplete = useAppStore((s) => s.markIntroComplete);
   const prefersReducedMotion = useReducedMotion();
-  const [introTriggered, setIntroTriggered] = useState(false);
+  const introTriggeredRef = useRef(false);
 
   useEffect(() => {
-    if (!map || !ready || isIntroComplete || introTriggered) return;
-    setIntroTriggered(true);
+    if (!map || !ready || isIntroComplete || introTriggeredRef.current) return;
+    introTriggeredRef.current = true;
 
     if (prefersReducedMotion) {
       map.jumpTo({
@@ -47,7 +47,7 @@ export function IntroAnimation() {
     }, INTRO_DURATION + 100);
 
     return () => window.clearTimeout(timeout);
-  }, [map, ready, isIntroComplete, introTriggered, prefersReducedMotion, markIntroComplete]);
+  }, [map, ready, isIntroComplete, prefersReducedMotion, markIntroComplete]);
 
   const skip = () => {
     if (!map) return;

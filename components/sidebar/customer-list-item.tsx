@@ -33,7 +33,6 @@ export function CustomerListItem({ customer, index = 0 }: Props) {
   return (
     <motion.button
       type="button"
-      role="listitem"
       onClick={() => select(customer.id)}
       onMouseEnter={() => hover(customer.id)}
       onMouseLeave={() => hover(null)}
@@ -43,6 +42,7 @@ export function CustomerListItem({ customer, index = 0 }: Props) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: Math.min(index * 0.02, 0.4) }}
       aria-pressed={isSelected}
+      aria-current={isSelected ? "true" : undefined}
       aria-label={`${customer.name} – ${formatStatus(customer.status)}`}
       className={`group relative flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-colors ${
         isSelected

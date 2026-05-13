@@ -63,7 +63,7 @@ export function SplatThreeRenderer({ url }: Props) {
       const geometry = new THREE.IcosahedronGeometry(0.9, 1);
       const material = new THREE.MeshStandardMaterial({ color: 0x5fb55c, roughness: 0.6 });
       scene.add(new THREE.Mesh(geometry, material));
-      setLoading(false);
+      queueMicrotask(() => setLoading(false));
     }
 
     const clock = new THREE.Clock();
