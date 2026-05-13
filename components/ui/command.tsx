@@ -40,17 +40,27 @@ function CommandDialog({
   className?: string;
   showCloseButton?: boolean;
 }) {
+  // IMPORTANT: <DialogHeader> must live INSIDE <DialogContent> (Radix scope
+  // rules) AND every CommandPrimitive.* subcomponent (Input, List, Group,
+  // Item, …) requires a surrounding <Command> root — otherwise their
+  // internal `useCommandState` hooks subscribe to an undefined cmdk store
+  // and the app crashes with "Cannot read properties of undefined (reading
+  // 'subscribe')" the moment the palette opens.
   return (
     <Dialog {...props}>
-      <DialogHeader className="sr-only">
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
-      </DialogHeader>
       <DialogContent
-        className={cn("top-1/3 translate-y-0 overflow-hidden rounded-xl! p-0", className)}
+        className={cn(
+          "top-1/3 translate-y-0 overflow-hidden rounded-xl! p-0",
+          "[&>[data-slot=command]]:max-h-[80vh]",
+          className,
+        )}
         showCloseButton={showCloseButton}
       >
-        {children}
+        <DialogHeader className="sr-only">
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <Command>{children}</Command>
       </DialogContent>
     </Dialog>
   );
