@@ -14,15 +14,27 @@ export function ThreeDBuildingsLayer() {
 
   useEffect(() => {
     if (!map || !ready) return;
-    const styleName = map.getStyle()?.name ?? "";
+    // Defensive: even when `ready` is true, Mapbox internals can briefly be in a
+    // transitional state during style switches. Guard before any getStyle() call.
+    if (!map.isStyleLoaded()) return;
 
+    let style: ReturnType<typeof map.getStyle> | undefined;
+    try {
+      style = map.getStyle() ?? undefined;
+    } catch {
+      // Style still loading despite isStyleLoaded === true — skip this tick.
+      return;
+    }
+    if (!style) return;
+
+    const styleName = style.name ?? "";
     if (styleName.includes("Standard")) {
       // Built into Mapbox Standard via setConfigProperty('basemap','show3dObjects',true)
       return;
     }
 
     const sourceLayerCandidates = ["building", "structure"];
-    const layers = map.getStyle()?.layers ?? [];
+    const layers = style.layers ?? [];
     const labelLayerId = layers.find((l) => l.type === "symbol" && l.layout?.["text-field"])?.id;
     const layerId = "stammkunden-3d-buildings";
 

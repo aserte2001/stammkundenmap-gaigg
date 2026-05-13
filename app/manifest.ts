@@ -13,8 +13,10 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "de-AT",
     icons: [
       {
+        // Matches the exported `size` in app/icon.tsx. Concrete dimensions are
+        // required for raster types; "any" is reserved for vector formats.
         src: "/icon",
-        sizes: "any",
+        sizes: "64x64",
         type: "image/png",
       },
       {

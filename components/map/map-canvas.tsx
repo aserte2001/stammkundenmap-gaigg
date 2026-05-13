@@ -21,11 +21,18 @@ type Props = {
 export function MapCanvas({ children }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
+  const lastStyleKeyRef = useRef<string | null>(null);
   const [map, setMap] = useState<mapboxgl.Map | null>(null);
   const [isStyleLoaded, setIsStyleLoaded] = useState(false);
   const mapStyle = useAppStore((s) => s.mapStyle);
   const isIntroComplete = useAppStore((s) => s.isIntroComplete);
   const setVisibleIds = useAppStore((s) => s.setVisibleIds);
+
+  // Capture initial values via refs so the map is built ONCE.
+  // Subsequent style changes go through the dedicated style-switch effect below;
+  // intro completion is handled by the intro-animation component via flyTo.
+  const initialStyleKeyRef = useRef(mapStyle);
+  const initialIntroCompleteRef = useRef(isIntroComplete);
 
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
@@ -33,8 +40,10 @@ export function MapCanvas({ children }: Props) {
     if (!containerRef.current || mapRef.current || !token) return;
 
     mapboxgl.accessToken = token;
-    const initialStyle = MAP_STYLES[mapStyle]?.style ?? FALLBACK_STYLE;
-    const initialView = isIntroComplete ? DEFAULT_VIEW : GLOBE_VIEW;
+    const initialStyleKey = initialStyleKeyRef.current;
+    const initialStyle = MAP_STYLES[initialStyleKey]?.style ?? FALLBACK_STYLE;
+    lastStyleKeyRef.current = initialStyleKey;
+    const initialView = initialIntroCompleteRef.current ? DEFAULT_VIEW : GLOBE_VIEW;
 
     let instance: mapboxgl.Map;
     try {
@@ -73,8 +82,20 @@ export function MapCanvas({ children }: Props) {
 
     const onError = (event: { error?: { status?: number; message?: string } }) => {
       const err = event.error;
-      if (err?.status === 404 && instance.getStyle()?.name?.includes("Standard")) {
+      if (err?.status !== 404) return;
+      // Only inspect getStyle() after the style is fully loaded — otherwise Mapbox
+      // throws "Style is not done loading" from _checkLoaded.
+      let isStandard = lastStyleKeyRef.current === "standard";
+      if (instance.isStyleLoaded()) {
+        try {
+          isStandard = isStandard || (instance.getStyle()?.name ?? "").includes("Standard");
+        } catch {
+          // ignore
+        }
+      }
+      if (isStandard) {
         console.warn("Standard style 404, falling back to streets-v12");
+        lastStyleKeyRef.current = "fallback";
         instance.setStyle(FALLBACK_STYLE);
       }
     };
@@ -83,7 +104,6 @@ export function MapCanvas({ children }: Props) {
     instance.on("error", onError);
 
     const updateVisible = () => {
-      // Will be filled in customer-pin-layer via map.queryRenderedFeatures
       const bounds = instance.getBounds();
       if (!bounds) return;
       setVisibleIds(
@@ -107,17 +127,20 @@ export function MapCanvas({ children }: Props) {
       instance.remove();
       mapRef.current = null;
     };
-  }, [token, mapStyle, isIntroComplete, setVisibleIds]);
+    // Intentionally minimal deps: token + setVisibleIds are both stable.
+    // Initial map config (mapStyle, isIntroComplete) is captured via refs above
+    // to ensure the Mapbox instance is built EXACTLY ONCE for the component lifetime.
+  }, [token, setVisibleIds]);
 
-  // Style switching (after init)
+  // Style switching after init — never on initial mount (lastStyleKeyRef gates it).
   useEffect(() => {
     const instance = mapRef.current;
     if (!instance) return;
-    const style = MAP_STYLES[mapStyle]?.style ?? FALLBACK_STYLE;
-    const current = instance.getStyle()?.sprite;
-    if (current && current.includes(mapStyle)) return;
+    if (lastStyleKeyRef.current === mapStyle) return;
+    const styleUrl = MAP_STYLES[mapStyle]?.style ?? FALLBACK_STYLE;
+    lastStyleKeyRef.current = mapStyle;
     setIsStyleLoaded(false);
-    instance.setStyle(style);
+    instance.setStyle(styleUrl);
   }, [mapStyle]);
 
   const value = useMemo(() => ({ map, isStyleLoaded }), [map, isStyleLoaded]);
