@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { fileURLToPath } from "node:url";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -18,6 +19,7 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["lucide-react"],
   },
   turbopack: {
+    root: fileURLToPath(new URL(".", import.meta.url)),
     resolveAlias: {
       "mapbox-gl": "mapbox-gl/dist/mapbox-gl.js",
     },
