@@ -19,11 +19,9 @@ export function DetailPanel() {
     >
       <SheetContent
         side="right"
-        className="flex w-full max-w-[460px] flex-col gap-4 overflow-hidden border-l-border bg-background/95 p-5 backdrop-blur-xl sm:rounded-l-3xl"
+        className="border-l-border bg-background/95 flex w-full max-w-[460px] flex-col gap-4 overflow-hidden p-5 backdrop-blur-xl sm:rounded-l-3xl"
       >
-        <SheetTitle className="sr-only">
-          {customer?.name ?? "Kundendetail"}
-        </SheetTitle>
+        <SheetTitle className="sr-only">{customer?.name ?? "Kundendetail"}</SheetTitle>
         {customer ? (
           <>
             <CustomerHeader customer={customer} />

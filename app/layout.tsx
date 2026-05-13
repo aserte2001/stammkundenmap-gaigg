@@ -72,16 +72,14 @@ const jsonLd = {
   url: SITE_URL,
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="de-AT"
       className={`${GeistSans.variable} ${GeistMono.variable} dark h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full bg-background font-sans text-foreground">
+      <body className="bg-background text-foreground min-h-full font-sans">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

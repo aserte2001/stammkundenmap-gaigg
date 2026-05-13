@@ -46,7 +46,7 @@ export function MapControls() {
   };
 
   return (
-    <div className="pointer-events-auto absolute right-4 top-4 z-20 flex flex-col gap-2">
+    <div className="pointer-events-auto absolute top-4 right-4 z-20 flex flex-col gap-2">
       <Button
         variant="secondary"
         size="icon"

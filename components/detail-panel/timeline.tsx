@@ -62,7 +62,7 @@ export function Timeline({ customer }: Props) {
   const events = makeEvents(customer);
 
   return (
-    <ol className="relative ml-3 flex flex-col gap-5 border-l border-border pl-6">
+    <ol className="border-border relative ml-3 flex flex-col gap-5 border-l pl-6">
       {events.map((evt, idx) => {
         const Icon = evt.Icon;
         const valid = !Number.isNaN(new Date(evt.date).getTime());
@@ -75,7 +75,7 @@ export function Timeline({ customer }: Props) {
             className="relative flex flex-col gap-0.5"
           >
             <span
-              className={`absolute -left-[35px] top-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-background ${
+              className={`border-background absolute top-1 -left-[35px] flex h-6 w-6 items-center justify-center rounded-full border-2 ${
                 evt.state === "today"
                   ? "bg-vip shadow-glow-vip"
                   : evt.state === "upcoming"
@@ -86,12 +86,12 @@ export function Timeline({ customer }: Props) {
             >
               <Icon className="h-3 w-3" />
             </span>
-            <span className="text-xs text-muted-foreground">{evt.label}</span>
+            <span className="text-muted-foreground text-xs">{evt.label}</span>
             <span className="text-sm font-medium">
               {valid ? formatLongDate(evt.date) : evt.date}
             </span>
             {valid ? (
-              <span className="text-[11px] text-muted-foreground">{relativeDays(evt.date)}</span>
+              <span className="text-muted-foreground text-[11px]">{relativeDays(evt.date)}</span>
             ) : null}
           </motion.li>
         );

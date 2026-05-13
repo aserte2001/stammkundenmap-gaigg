@@ -13,7 +13,7 @@ import { Sidebar } from "@/components/sidebar/sidebar";
 
 export default function HomePage() {
   return (
-    <main className="relative h-dvh w-full overflow-hidden bg-background text-foreground">
+    <main className="bg-background text-foreground relative h-dvh w-full overflow-hidden">
       <MapShell>
         <ThreeDBuildingsLayer />
         <ClusterHeatLayer />
@@ -28,7 +28,7 @@ export default function HomePage() {
       <ShortcutsDialog />
       <KeyboardNav />
 
-      <header className="pointer-events-none absolute right-4 top-4 z-20 flex items-center gap-2">
+      <header className="pointer-events-none absolute top-4 right-4 z-20 flex items-center gap-2">
         <div className="pointer-events-auto">
           <MapStyleSwitcher />
         </div>

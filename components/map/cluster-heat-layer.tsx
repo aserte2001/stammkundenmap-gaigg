@@ -72,15 +72,7 @@ export function ClusterHeatLayer() {
       source: SOURCE_ID,
       filter: ["has", "point_count"],
       paint: {
-        "circle-color": [
-          "step",
-          ["get", "point_count"],
-          "#7fbf5c",
-          5,
-          "#f4b540",
-          10,
-          "#c87332",
-        ],
+        "circle-color": ["step", ["get", "point_count"], "#7fbf5c", 5, "#f4b540", 10, "#c87332"],
         "circle-radius": ["step", ["get", "point_count"], 22, 5, 28, 10, 36],
         "circle-stroke-width": 2,
         "circle-stroke-color": "rgba(255,255,255,0.9)",

@@ -18,8 +18,7 @@ export function haversineMeters(a: LngLat, b: LngLat): number {
   const sinDLat = Math.sin(dLat / 2);
   const sinDLon = Math.sin(dLon / 2);
   const h =
-    sinDLat * sinDLat +
-    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * sinDLon * sinDLon;
+    sinDLat * sinDLat + Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * sinDLon * sinDLon;
   return 2 * EARTH_RADIUS_M * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 

@@ -26,10 +26,10 @@ function SidebarContent() {
   return (
     <div className="flex h-full flex-col">
       <SidebarHeader stats={stats} filtered={filteredFlag} />
-      <div className="border-b border-border py-3">
+      <div className="border-border border-b py-3">
         <SearchInput />
       </div>
-      <div className="border-b border-border">
+      <div className="border-border border-b">
         <FilterBar />
       </div>
       <div className="min-h-0 flex-1">
@@ -46,7 +46,7 @@ export function Sidebar() {
     <>
       <aside
         aria-label="Sidebar mit Kundenliste und Filtern"
-        className="pointer-events-auto absolute left-4 top-4 bottom-4 z-30 hidden w-[360px] flex-col overflow-hidden rounded-3xl border border-border bg-background/80 shadow-2xl backdrop-blur-xl md:flex"
+        className="border-border bg-background/80 pointer-events-auto absolute top-4 bottom-4 left-4 z-30 hidden w-[360px] flex-col overflow-hidden rounded-3xl border shadow-2xl backdrop-blur-xl md:flex"
       >
         <SidebarContent />
       </aside>
@@ -55,18 +55,21 @@ export function Sidebar() {
           <Button
             variant="secondary"
             size="icon"
-            className="pointer-events-auto absolute left-4 top-20 z-30 md:hidden"
+            className="pointer-events-auto absolute top-20 left-4 z-30 md:hidden"
             aria-label="Sidebar öffnen"
           >
             <Menu className="h-4 w-4" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-[88vw] max-w-[400px] border-r-border bg-background p-0">
+        <SheetContent
+          side="left"
+          className="border-r-border bg-background w-[88vw] max-w-[400px] p-0"
+        >
           <SheetTitle className="sr-only">Stammkunden-Liste</SheetTitle>
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-3 top-3 z-50"
+            className="absolute top-3 right-3 z-50"
             onClick={() => setOpen(false)}
             aria-label="Schließen"
           >

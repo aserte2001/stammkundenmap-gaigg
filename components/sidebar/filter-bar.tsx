@@ -46,7 +46,7 @@ export function FilterBar() {
   return (
     <div className="flex flex-col gap-3 p-4">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        <span className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
           Filter
         </span>
         {hasFilters ? (
@@ -57,7 +57,7 @@ export function FilterBar() {
               clearFilters();
               if (viewportOnly) toggleViewport();
             }}
-            className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground h-7 gap-1 px-2 text-xs"
           >
             <X className="h-3 w-3" />
             Filter zurücksetzen
@@ -66,7 +66,7 @@ export function FilterBar() {
       </div>
 
       <section aria-label="Status-Filter" className="flex flex-col gap-2">
-        <span className="text-xs text-muted-foreground">Status</span>
+        <span className="text-muted-foreground text-xs">Status</span>
         <ToggleGroup
           type="multiple"
           variant="outline"
@@ -87,7 +87,7 @@ export function FilterBar() {
               key={status}
               value={status}
               aria-label={`Status ${labels.status[status]}`}
-              className="rounded-full text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+              className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground rounded-full text-xs"
             >
               {labels.status[status]}
             </ToggleGroupItem>
@@ -96,7 +96,7 @@ export function FilterBar() {
       </section>
 
       <section aria-label="Kundentyp-Filter" className="flex flex-col gap-2">
-        <span className="text-xs text-muted-foreground">Typ</span>
+        <span className="text-muted-foreground text-xs">Typ</span>
         <ToggleGroup
           type="multiple"
           variant="outline"
@@ -117,7 +117,7 @@ export function FilterBar() {
               key={type}
               value={type}
               aria-label={`Typ ${labels.type[type]}`}
-              className="rounded-full text-xs data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+              className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground rounded-full text-xs"
             >
               {labels.type[type]}
             </ToggleGroupItem>
@@ -126,7 +126,7 @@ export function FilterBar() {
       </section>
 
       <section aria-label="Gewerk-Filter" className="flex flex-col gap-2">
-        <span className="text-xs text-muted-foreground">Gewerke</span>
+        <span className="text-muted-foreground text-xs">Gewerke</span>
         <Popover open={servicesOpen} onOpenChange={setServicesOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -141,7 +141,7 @@ export function FilterBar() {
                   ? "Alle Gewerke"
                   : `${filters.services.size} Gewerk${filters.services.size === 1 ? "" : "e"} aktiv`}
               </span>
-              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+              <ChevronDown className="text-muted-foreground h-3.5 w-3.5" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-72 p-0" align="start">
@@ -160,7 +160,7 @@ export function FilterBar() {
                         className="flex items-center justify-between gap-2"
                       >
                         <span>{labels.service[service]}</span>
-                        {checked ? <Check className="h-4 w-4 text-primary" /> : null}
+                        {checked ? <Check className="text-primary h-4 w-4" /> : null}
                       </CommandItem>
                     );
                   })}

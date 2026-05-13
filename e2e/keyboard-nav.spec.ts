@@ -8,7 +8,9 @@ test.describe("Keyboard navigation", () => {
     await page.goto("/");
     await page.waitForTimeout(800);
     await page.keyboard.press("Shift+/");
-    await expect(page.getByRole("dialog", { name: /Tastaturkürzel/i })).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByRole("dialog", { name: /Tastaturkürzel/i })).toBeVisible({
+      timeout: 5_000,
+    });
   });
 
   test("ArrowDown selects first customer in list", async ({ page }) => {

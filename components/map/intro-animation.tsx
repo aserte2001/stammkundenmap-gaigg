@@ -72,7 +72,7 @@ export function IntroAnimation() {
       transition={{ duration: 0.4 }}
       className="pointer-events-none absolute inset-0 z-30 flex items-end justify-center pb-12"
     >
-      <div className="pointer-events-auto flex flex-col items-center gap-3 rounded-full bg-card/85 px-5 py-3 text-sm text-foreground shadow-lg backdrop-blur">
+      <div className="bg-card/85 text-foreground pointer-events-auto flex flex-col items-center gap-3 rounded-full px-5 py-3 text-sm shadow-lg backdrop-blur">
         <span className="text-muted-foreground">Globus → Linz · Anflug startet…</span>
         <Button size="sm" variant="ghost" onClick={skip}>
           Direkt zur Karte

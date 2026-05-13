@@ -16,11 +16,11 @@ function StatChip({ icon, label, value, highlight }: StatChipProps) {
   return (
     <motion.div
       layout
-      className={`flex flex-col gap-1 rounded-2xl border border-border bg-card/80 px-3 py-2.5 backdrop-blur ${
+      className={`border-border bg-card/80 flex flex-col gap-1 rounded-2xl border px-3 py-2.5 backdrop-blur ${
         highlight ? "shadow-glow-primary" : ""
       }`}
     >
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <div className="text-muted-foreground flex items-center gap-2 text-xs">
         {icon}
         {label}
       </div>
@@ -42,7 +42,7 @@ type SidebarHeaderProps = {
 export function SidebarHeader({ stats, filtered }: SidebarHeaderProps) {
   return (
     <header
-      className="flex flex-col gap-4 border-b border-border bg-gradient-to-br from-card via-card to-background p-5"
+      className="border-border from-card via-card to-background flex flex-col gap-4 border-b bg-gradient-to-br p-5"
       aria-label="Sidebar header mit Markenidentität und Kennzahlen"
     >
       <Logo size={44} />

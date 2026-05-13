@@ -6,8 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 const MapCanvasNoSSR = dynamic(() => import("./map-canvas").then((m) => m.MapCanvas), {
   ssr: false,
   loading: () => (
-    <div className="absolute inset-0 flex flex-col gap-3 bg-background/90 p-8">
-      <Skeleton className="h-full w-full rounded-3xl bg-card" />
+    <div className="bg-background/90 absolute inset-0 flex flex-col gap-3 p-8">
+      <Skeleton className="bg-card h-full w-full rounded-3xl" />
     </div>
   ),
 });

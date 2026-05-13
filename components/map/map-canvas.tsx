@@ -4,7 +4,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-import { DEFAULT_VIEW, FALLBACK_STYLE, GLOBE_VIEW, MAP_STYLES, MAPBOX_LIGHT_PRESET } from "@/lib/map-config";
+import {
+  DEFAULT_VIEW,
+  FALLBACK_STYLE,
+  GLOBE_VIEW,
+  MAP_STYLES,
+  MAPBOX_LIGHT_PRESET,
+} from "@/lib/map-config";
 import { useAppStore } from "@/lib/store";
 import { MapContext } from "./map-context";
 
@@ -82,8 +88,9 @@ export function MapCanvas({ children }: Props) {
       if (!bounds) return;
       setVisibleIds(
         (window as unknown as { __customerIds?: string[] }).__customerIds?.filter((id) => {
-          const coord = (window as unknown as { __customerCoords?: Record<string, [number, number]> })
-            .__customerCoords?.[id];
+          const coord = (
+            window as unknown as { __customerCoords?: Record<string, [number, number]> }
+          ).__customerCoords?.[id];
           if (!coord) return false;
           return bounds.contains(coord);
         }) ?? [],
@@ -117,7 +124,7 @@ export function MapCanvas({ children }: Props) {
 
   if (!token) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-card p-12 text-center text-muted-foreground">
+      <div className="bg-card text-muted-foreground flex h-full w-full items-center justify-center p-12 text-center">
         Mapbox-Token fehlt. Bitte <code>NEXT_PUBLIC_MAPBOX_TOKEN</code> setzen.
       </div>
     );

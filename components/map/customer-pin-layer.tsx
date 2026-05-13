@@ -62,9 +62,12 @@ export function CustomerPinLayer() {
       if (map.getLayer("gaigg-pin-outline")) return;
 
       // Expose customers globally for viewport tracking (read by map-canvas)
-      (window as unknown as { __customerIds?: string[] }).__customerIds = customers.map((c) => c.id);
-      (window as unknown as { __customerCoords?: Record<string, [number, number]> }).__customerCoords =
-        Object.fromEntries(customers.map((c) => [c.id, c.coordinates]));
+      (window as unknown as { __customerIds?: string[] }).__customerIds = customers.map(
+        (c) => c.id,
+      );
+      (
+        window as unknown as { __customerCoords?: Record<string, [number, number]> }
+      ).__customerCoords = Object.fromEntries(customers.map((c) => [c.id, c.coordinates]));
 
       // Status outline circle (below pins)
       map.addLayer({
@@ -74,17 +77,7 @@ export function CustomerPinLayer() {
         filter: ["!", ["has", "point_count"]],
         minzoom: 9,
         paint: {
-          "circle-radius": [
-            "interpolate",
-            ["linear"],
-            ["zoom"],
-            9,
-            10,
-            14,
-            18,
-            17,
-            22,
-          ],
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 10, 14, 18, 17, 22],
           "circle-color": [
             "match",
             ["get", "status"],
@@ -98,12 +91,7 @@ export function CustomerPinLayer() {
             STATUS_COLORS.neu,
             STATUS_COLORS.aktiv,
           ],
-          "circle-opacity": [
-            "case",
-            ["boolean", ["feature-state", "hover"], false],
-            0.95,
-            0.65,
-          ],
+          "circle-opacity": ["case", ["boolean", ["feature-state", "hover"], false], 0.95, 0.65],
           "circle-stroke-width": [
             "case",
             ["boolean", ["feature-state", "selected"], false],
@@ -125,17 +113,7 @@ export function CustomerPinLayer() {
         minzoom: 9,
         layout: {
           "icon-image": ["get", "iconKey"],
-          "icon-size": [
-            "interpolate",
-            ["linear"],
-            ["zoom"],
-            9,
-            0.25,
-            14,
-            0.45,
-            17,
-            0.65,
-          ],
+          "icon-size": ["interpolate", ["linear"], ["zoom"], 9, 0.25, 14, 0.45, 17, 0.65],
           "icon-allow-overlap": true,
           "icon-ignore-placement": true,
           "icon-anchor": "center",
@@ -150,17 +128,7 @@ export function CustomerPinLayer() {
         filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "isVip"], 1]],
         minzoom: 8,
         paint: {
-          "circle-radius": [
-            "interpolate",
-            ["linear"],
-            ["zoom"],
-            9,
-            16,
-            14,
-            26,
-            17,
-            32,
-          ],
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 16, 14, 26, 17, 32],
           "circle-color": STATUS_COLORS.vip,
           "circle-opacity": 0.18,
           "circle-blur": 0.6,
@@ -183,13 +151,17 @@ export function CustomerPinLayer() {
       });
 
       // Click/hover handlers
-      const onClick = (e: mapboxgl.MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
+      const onClick = (
+        e: mapboxgl.MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] },
+      ) => {
         const id = (e.features?.[0]?.properties as { id?: string })?.id;
         if (!id) return;
         select(id);
       };
 
-      const onMouseMove = (e: mapboxgl.MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
+      const onMouseMove = (
+        e: mapboxgl.MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] },
+      ) => {
         const id = (e.features?.[0]?.properties as { id?: string })?.id;
         if (!id) {
           map.getCanvas().style.cursor = "";

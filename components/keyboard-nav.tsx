@@ -64,7 +64,9 @@ export function KeyboardNav() {
     let prevStyle = useAppStore.getState().mapStyle;
     const unsubStyle = useAppStore.subscribe((state) => {
       if (state.mapStyle !== prevStyle) {
-        toast.success(`Karten-Stil: ${state.mapStyle === "standard-satellite" ? "Satellit" : "Atmosphäre"}`);
+        toast.success(
+          `Karten-Stil: ${state.mapStyle === "standard-satellite" ? "Satellit" : "Atmosphäre"}`,
+        );
         prevStyle = state.mapStyle;
       }
     });

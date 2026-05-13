@@ -19,11 +19,25 @@ export function Logo({ className, showWordmark = true, size = 40 }: LogoProps) {
         role="img"
       >
         <defs>
-          <linearGradient id="logo-leaf" x1="14" y1="6" x2="50" y2="58" gradientUnits="userSpaceOnUse">
+          <linearGradient
+            id="logo-leaf"
+            x1="14"
+            y1="6"
+            x2="50"
+            y2="58"
+            gradientUnits="userSpaceOnUse"
+          >
             <stop offset="0%" stopColor="oklch(0.86 0.18 145)" />
             <stop offset="100%" stopColor="oklch(0.55 0.18 145)" />
           </linearGradient>
-          <linearGradient id="logo-stem" x1="30" y1="34" x2="34" y2="58" gradientUnits="userSpaceOnUse">
+          <linearGradient
+            id="logo-stem"
+            x1="30"
+            y1="34"
+            x2="34"
+            y2="58"
+            gradientUnits="userSpaceOnUse"
+          >
             <stop offset="0%" stopColor="oklch(0.6 0.15 145)" />
             <stop offset="100%" stopColor="oklch(0.4 0.12 145)" />
           </linearGradient>
@@ -37,22 +51,15 @@ export function Logo({ className, showWordmark = true, size = 40 }: LogoProps) {
           fill="oklch(0.96 0.04 145)"
           opacity="0.18"
         />
-        <path
-          d="M32 24v32"
-          stroke="url(#logo-stem)"
-          strokeWidth="2.4"
-          strokeLinecap="round"
-        />
+        <path d="M32 24v32" stroke="url(#logo-stem)" strokeWidth="2.4" strokeLinecap="round" />
         <circle cx="32" cy="22" r="3" fill="oklch(0.88 0.18 92)" />
       </svg>
       {showWordmark ? (
         <div className="flex flex-col leading-none">
-          <span className="text-sm font-semibold tracking-tight text-foreground">
+          <span className="text-foreground text-sm font-semibold tracking-tight">
             Gartengestaltung
           </span>
-          <span className="text-base font-bold tracking-tight text-gradient-primary">
-            Gaigg
-          </span>
+          <span className="text-gradient-primary text-base font-bold tracking-tight">Gaigg</span>
         </div>
       ) : null}
     </div>

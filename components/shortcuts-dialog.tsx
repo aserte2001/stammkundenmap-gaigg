@@ -19,7 +19,7 @@ const SHORTCUTS: Shortcut[] = [
 
 function KeyChip({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="inline-flex h-7 min-w-[28px] items-center justify-center rounded-md border border-border bg-card px-1.5 text-xs font-medium text-foreground shadow-sm">
+    <kbd className="border-border bg-card text-foreground inline-flex h-7 min-w-[28px] items-center justify-center rounded-md border px-1.5 text-xs font-medium shadow-sm">
       {children}
     </kbd>
   );
@@ -44,7 +44,7 @@ export function ShortcutsDialog() {
                   <span key={k + idx} className="flex items-center gap-1">
                     <KeyChip>{k}</KeyChip>
                     {idx < s.keys.length - 1 ? (
-                      <span className="text-xs text-muted-foreground">+</span>
+                      <span className="text-muted-foreground text-xs">+</span>
                     ) : null}
                   </span>
                 ))}

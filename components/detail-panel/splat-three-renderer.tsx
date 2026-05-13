@@ -122,15 +122,15 @@ export function SplatThreeRenderer({ url }: Props) {
   };
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-2xl bg-card">
+    <div className="bg-card relative h-full w-full overflow-hidden rounded-2xl">
       {loading ? (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-card text-muted-foreground">
+        <div className="bg-card text-muted-foreground absolute inset-0 z-10 flex items-center justify-center">
           <Loader2 className="h-5 w-5 animate-spin" />
           <span className="ml-2 text-sm">3D-Erfassung wird geladen…</span>
         </div>
       ) : null}
       <div ref={containerRef} className="absolute inset-0" data-testid="splat-three-renderer" />
-      <div className="absolute bottom-3 right-3 z-20 flex gap-1.5">
+      <div className="absolute right-3 bottom-3 z-20 flex gap-1.5">
         <Button
           size="icon"
           variant="secondary"

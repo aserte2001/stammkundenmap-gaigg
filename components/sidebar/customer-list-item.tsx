@@ -49,10 +49,10 @@ export function CustomerListItem({ customer, index = 0 }: Props) {
           ? "border-primary/60 bg-primary/10 shadow-glow-primary"
           : isHovered
             ? "border-border bg-card"
-            : "border-transparent bg-card/40 hover:border-border hover:bg-card"
+            : "bg-card/40 hover:border-border hover:bg-card border-transparent"
       }`}
     >
-      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-muted">
+      <div className="bg-muted relative h-12 w-12 shrink-0 overflow-hidden rounded-xl">
         <Image
           src={customer.photoUrl}
           alt=""
@@ -62,7 +62,7 @@ export function CustomerListItem({ customer, index = 0 }: Props) {
           unoptimized
         />
         {customer.status === "vip" ? (
-          <span className="absolute right-0.5 top-0.5 rounded-full bg-vip/95 p-0.5 text-vip-foreground">
+          <span className="bg-vip/95 text-vip-foreground absolute top-0.5 right-0.5 rounded-full p-0.5">
             <Crown className="h-2.5 w-2.5" />
           </span>
         ) : null}
@@ -71,7 +71,7 @@ export function CustomerListItem({ customer, index = 0 }: Props) {
         <div className="flex items-center gap-2">
           <span className="truncate text-sm font-medium">{customer.name}</span>
         </div>
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-1 text-xs">
           <MapPin className="h-3 w-3" />
           <span className="truncate">{customer.address.district}</span>
           <span>·</span>
@@ -85,7 +85,7 @@ export function CustomerListItem({ customer, index = 0 }: Props) {
         >
           {formatStatus(customer.status)}
         </Badge>
-        <span className="text-[10px] text-muted-foreground">
+        <span className="text-muted-foreground text-[10px]">
           {formatCompactCurrency(customer.yearlyRevenueEur)}
         </span>
       </div>

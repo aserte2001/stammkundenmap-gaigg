@@ -199,8 +199,7 @@ export const customers: Customer[] = [
     lastVisit: "2026-04-25",
     nextAppointment: "2026-05-23",
     yearlyRevenueEur: 5_900,
-    notes:
-      "Großer Teich mit Koi-Karpfen. UV-Klärung Wartung jährlich. Familie sehr designaffin.",
+    notes: "Großer Teich mit Koi-Karpfen. UV-Klärung Wartung jährlich. Familie sehr designaffin.",
     photoUrl: "/photos/c-007.svg",
   },
   {
@@ -432,8 +431,7 @@ export const customers: Customer[] = [
     lastVisit: "2026-04-24",
     nextAppointment: "2026-05-15",
     yearlyRevenueEur: 7_800,
-    notes:
-      "Innenhof mit Hochbeeten für Küchenkräuter — Köchin lebt für saisonale Eigenproduktion.",
+    notes: "Innenhof mit Hochbeeten für Küchenkräuter — Köchin lebt für saisonale Eigenproduktion.",
     photoUrl: "/photos/c-017.svg",
   },
   {
@@ -512,7 +510,7 @@ export const customers: Customer[] = [
       postalCode: "4061",
       district: "Pasching",
     },
-    coordinates: [14.2010, 48.2697],
+    coordinates: [14.201, 48.2697],
     status: "aktiv",
     services: ["rasenpflege", "heckenschnitt", "winterdienst"],
     gardenType: "firmengelaende",
@@ -521,8 +519,7 @@ export const customers: Customer[] = [
     lastVisit: "2026-04-30",
     nextAppointment: "2026-05-13",
     yearlyRevenueEur: 31_500,
-    notes:
-      "Großauftrag: Außenflächen Shopping Center, inkl. Winterdienst Parkplätze.",
+    notes: "Großauftrag: Außenflächen Shopping Center, inkl. Winterdienst Parkplätze.",
     photoUrl: "/photos/c-021.svg",
   },
   {
@@ -611,8 +608,7 @@ export const customers: Customer[] = [
     lastVisit: "2026-04-28",
     nextAppointment: "2026-05-21",
     yearlyRevenueEur: 18_900,
-    notes:
-      "Friedhof in zentraler Lage. Pietätsthema, daher früher Beginn und leise Arbeitsweise.",
+    notes: "Friedhof in zentraler Lage. Pietätsthema, daher früher Beginn und leise Arbeitsweise.",
     photoUrl: "/photos/c-025.svg",
   },
 ];

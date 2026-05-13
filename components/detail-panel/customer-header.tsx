@@ -36,19 +36,19 @@ export function CustomerHeader({ customer }: Props) {
           unoptimized
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/30 to-transparent" />
+        <div className="from-background/95 via-background/30 absolute inset-0 bg-gradient-to-t to-transparent" />
         {customer.status === "vip" ? (
-          <div className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-vip/95 px-2.5 py-1 text-xs font-semibold text-vip-foreground shadow-glow-vip">
+          <div className="bg-vip/95 text-vip-foreground shadow-glow-vip absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold">
             <Crown className="h-3 w-3" />
             VIP-Stammkunde
           </div>
         ) : null}
-        <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2">
+        <div className="absolute right-3 bottom-3 left-3 flex items-end justify-between gap-2">
           <div className="flex flex-col gap-1">
-            <h2 className="text-xl font-semibold leading-tight tracking-tight text-foreground">
+            <h2 className="text-foreground text-xl leading-tight font-semibold tracking-tight">
               {customer.name}
             </h2>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-1 text-xs">
               <MapPin className="h-3 w-3" />
               {customer.address.street}, {customer.address.postalCode} {customer.address.city}
             </div>

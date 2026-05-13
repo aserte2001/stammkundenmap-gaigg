@@ -60,12 +60,12 @@ export function CommandPalette() {
               }}
             >
               {c.status === "vip" ? (
-                <Crown className="mr-2 h-4 w-4 text-vip" />
+                <Crown className="text-vip mr-2 h-4 w-4" />
               ) : (
-                <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
+                <MapPin className="text-muted-foreground mr-2 h-4 w-4" />
               )}
               <span className="truncate">{c.name}</span>
-              <span className="ml-auto text-xs text-muted-foreground">
+              <span className="text-muted-foreground ml-auto text-xs">
                 {formatStatus(c.status)} · {c.address.district}
               </span>
             </CommandItem>
@@ -97,7 +97,7 @@ export function CommandPalette() {
               close();
             }}
           >
-            <Crown className="mr-2 h-4 w-4 text-vip" />
+            <Crown className="text-vip mr-2 h-4 w-4" />
             Nur VIP anzeigen
           </CommandItem>
           <CommandItem
@@ -117,7 +117,7 @@ export function CommandPalette() {
               close();
             }}
           >
-            <kbd className="mr-2 rounded border border-border px-1.5 text-[10px]">⌘/</kbd>
+            <kbd className="border-border mr-2 rounded border px-1.5 text-[10px]">⌘/</kbd>
             Tastaturkürzel anzeigen
           </CommandItem>
         </CommandGroup>

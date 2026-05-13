@@ -1,6 +1,13 @@
 import { create } from "zustand";
 import Fuse from "fuse.js";
-import { customers, type Customer, type CustomerStatus, type CustomerType, type GardenType, type Service } from "./customers";
+import {
+  customers,
+  type Customer,
+  type CustomerStatus,
+  type CustomerType,
+  type GardenType,
+  type Service,
+} from "./customers";
 
 export type MapStyleKey = "standard" | "standard-satellite";
 

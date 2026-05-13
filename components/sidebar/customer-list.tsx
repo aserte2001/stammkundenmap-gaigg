@@ -36,9 +36,9 @@ export function CustomerList() {
     return (
       <div
         role="status"
-        className="flex flex-col items-center gap-3 px-4 py-12 text-center text-sm text-muted-foreground"
+        className="text-muted-foreground flex flex-col items-center gap-3 px-4 py-12 text-center text-sm"
       >
-        <div className="rounded-full border border-dashed border-border bg-card/60 p-4">
+        <div className="border-border bg-card/60 rounded-full border border-dashed p-4">
           <span className="text-2xl" aria-hidden>
             🌱
           </span>

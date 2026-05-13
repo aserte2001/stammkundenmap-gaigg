@@ -130,11 +130,10 @@ describe("filterCustomers", () => {
   });
 
   it("respects viewport-only when activated", () => {
-    const result = filterCustomers(
-      customers,
-      initialFilters,
-      { viewportOnly: true, visibleIds: new Set(["c-001", "c-002"]) },
-    );
+    const result = filterCustomers(customers, initialFilters, {
+      viewportOnly: true,
+      visibleIds: new Set(["c-001", "c-002"]),
+    });
     expect(result.length).toBe(2);
     expect(result.map((c) => c.id).sort()).toEqual(["c-001", "c-002"]);
   });

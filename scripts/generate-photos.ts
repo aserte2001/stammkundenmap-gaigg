@@ -91,11 +91,7 @@ function svgFor(id: string, name: string): string {
     : "";
 
   const pathFill =
-    scene.pathStyle === "stone"
-      ? "#7d7b6b"
-      : scene.pathStyle === "wood"
-        ? "#7a4f24"
-        : "#bcae8a";
+    scene.pathStyle === "stone" ? "#7d7b6b" : scene.pathStyle === "wood" ? "#7a4f24" : "#bcae8a";
 
   const path = `
     <path d="M0 750 Q 300 690 600 740 T 1200 720 L 1200 800 L 0 800 Z" fill="${pathFill}" opacity="0.55"/>

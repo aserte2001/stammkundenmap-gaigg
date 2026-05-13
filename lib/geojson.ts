@@ -17,7 +17,9 @@ export type CustomerProps = {
 
 export type CustomerFeature = Feature<Point, CustomerProps>;
 
-export function toFeatureCollection(list: readonly Customer[]): FeatureCollection<Point, CustomerProps> {
+export function toFeatureCollection(
+  list: readonly Customer[],
+): FeatureCollection<Point, CustomerProps> {
   const features: CustomerFeature[] = list.map((c) => ({
     type: "Feature",
     geometry: { type: "Point", coordinates: c.coordinates },
@@ -40,6 +42,4 @@ export function toFeatureCollection(list: readonly Customer[]): FeatureCollectio
 
 export const customerFeatureCollection = toFeatureCollection(customers);
 
-export const customerIconKeys = Array.from(
-  new Set(customers.map((c) => `gaigg-${c.gardenType}`)),
-);
+export const customerIconKeys = Array.from(new Set(customers.map((c) => `gaigg-${c.gardenType}`)));
