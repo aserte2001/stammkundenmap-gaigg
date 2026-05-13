@@ -1,4 +1,5 @@
 import { CommandPalette } from "@/components/command-palette";
+import { DetailPanel } from "@/components/detail-panel/detail-panel";
 import { ClusterHeatLayer } from "@/components/map/cluster-heat-layer";
 import { CustomerPinLayer } from "@/components/map/customer-pin-layer";
 import { IntroAnimation } from "@/components/map/intro-animation";
@@ -20,6 +21,7 @@ export default function HomePage() {
       </MapShell>
 
       <Sidebar />
+      <DetailPanel />
       <CommandPalette />
 
       <header className="pointer-events-none absolute right-4 top-4 z-20 flex items-center gap-2">
