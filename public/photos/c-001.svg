@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Garten von Villa Hofer">
+  <defs>
+    <linearGradient id="sky-c-001" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="hsl(200 38% 18%)"/>
+      <stop offset="60%" stop-color="hsl(185 30% 30%)"/>
+      <stop offset="100%" stop-color="#0e1f12"/>
+    </linearGradient>
+    <radialGradient id="sun-c-001" cx="78%" cy="22%" r="40%">
+      <stop offset="0%" stop-color="rgba(255, 235, 180, 0.55)"/>
+      <stop offset="60%" stop-color="rgba(255, 235, 180, 0)"/>
+    </radialGradient>
+    <linearGradient id="ground-c-001" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1f4127"/>
+      <stop offset="100%" stop-color="#0e1f12"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky-c-001)"/>
+  <rect width="1200" height="800" fill="url(#sun-c-001)"/>
+  <path d="M0 460 Q 300 380 600 440 T 1200 420 L 1200 800 L 0 800 Z" fill="url(#ground-c-001)"/>
+  <ellipse cx="810" cy="625" rx="146" ry="38" fill="#266c8a" opacity="0.85"/>
+  
+      <g transform="translate(1016 661)">
+        <rect x="-8" y="0" width="16" height="140" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-46" rx="115" ry="98" fill="#1f4127" opacity="0.92"/>
+        <ellipse cx="1" cy="-69" rx="81" ry="69" fill="#3a7d3a" opacity="0.85"/>
+        <ellipse cx="-6" cy="-92" rx="52" ry="46" fill="#7fbf5c" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(96 572)">
+        <rect x="-8" y="0" width="16" height="140" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-28" rx="71" ry="60" fill="#1f4127" opacity="0.92"/>
+        <ellipse cx="4" cy="-42" rx="50" ry="42" fill="#3a7d3a" opacity="0.85"/>
+        <ellipse cx="-11" cy="-57" rx="32" ry="28" fill="#7fbf5c" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(712 530)">
+        <rect x="-8" y="0" width="16" height="135" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-49" rx="123" ry="105" fill="#1f4127" opacity="0.92"/>
+        <ellipse cx="-2" cy="-74" rx="86" ry="74" fill="#3a7d3a" opacity="0.85"/>
+        <ellipse cx="-12" cy="-99" rx="56" ry="49" fill="#7fbf5c" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(364 663)">
+        <rect x="-8" y="0" width="16" height="142" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-45" rx="112" ry="95" fill="#1f4127" opacity="0.92"/>
+        <ellipse cx="9" cy="-67" rx="78" ry="67" fill="#3a7d3a" opacity="0.85"/>
+        <ellipse cx="-8" cy="-89" rx="50" ry="45" fill="#7fbf5c" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(696 618)">
+        <rect x="-8" y="0" width="16" height="100" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-29" rx="72" ry="61" fill="#1f4127" opacity="0.92"/>
+        <ellipse cx="-2" cy="-43" rx="51" ry="43" fill="#3a7d3a" opacity="0.85"/>
+        <ellipse cx="-14" cy="-58" rx="33" ry="29" fill="#7fbf5c" opacity="0.75"/>
+      </g>
+  
+      <ellipse cx="1077" cy="559" rx="49" ry="32" fill="#3a7d3a" opacity="0.85"/>
+      <ellipse cx="1082" cy="544" rx="32" ry="22" fill="#7fbf5c" opacity="0.8"/>
+
+      <ellipse cx="861" cy="659" rx="39" ry="26" fill="#3a7d3a" opacity="0.85"/>
+      <ellipse cx="870" cy="647" rx="26" ry="18" fill="#7fbf5c" opacity="0.8"/>
+
+      <ellipse cx="336" cy="599" rx="69" ry="45" fill="#3a7d3a" opacity="0.85"/>
+      <ellipse cx="339" cy="578" rx="45" ry="31" fill="#7fbf5c" opacity="0.8"/>
+
+      <ellipse cx="462" cy="677" rx="72" ry="47" fill="#3a7d3a" opacity="0.85"/>
+      <ellipse cx="469" cy="656" rx="47" ry="32" fill="#7fbf5c" opacity="0.8"/>
+  
+    <path d="M0 750 Q 300 690 600 740 T 1200 720 L 1200 800 L 0 800 Z" fill="#7d7b6b" opacity="0.55"/>
+    <path d="M0 760 Q 300 700 600 750 T 1200 730" stroke="#dcefb1" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <rect x="40" y="40" width="320" height="64" rx="12" fill="rgba(8, 14, 8, 0.55)"/>
+  <text x="60" y="80" font-family="Geist, Inter, sans-serif" font-size="22" font-weight="600" fill="#dcefb1">Villa Hofer</text>
+</svg>

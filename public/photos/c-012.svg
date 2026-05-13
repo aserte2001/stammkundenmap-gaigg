@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Garten von Anwesen Wimmer">
+  <defs>
+    <linearGradient id="sky-c-012" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="hsl(205 38% 18%)"/>
+      <stop offset="60%" stop-color="hsl(190 30% 30%)"/>
+      <stop offset="100%" stop-color="#0d1c0d"/>
+    </linearGradient>
+    <radialGradient id="sun-c-012" cx="78%" cy="22%" r="40%">
+      <stop offset="0%" stop-color="rgba(255, 235, 180, 0.55)"/>
+      <stop offset="60%" stop-color="rgba(255, 235, 180, 0)"/>
+    </radialGradient>
+    <linearGradient id="ground-c-012" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22552b"/>
+      <stop offset="100%" stop-color="#0d1c0d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky-c-012)"/>
+  <rect width="1200" height="800" fill="url(#sun-c-012)"/>
+  <path d="M0 460 Q 300 380 600 440 T 1200 420 L 1200 800 L 0 800 Z" fill="url(#ground-c-012)"/>
+  <ellipse cx="740" cy="624" rx="215" ry="55" fill="#266c8a" opacity="0.85"/>
+  
+      <g transform="translate(371 566)">
+        <rect x="-8" y="0" width="16" height="135" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-30" rx="76" ry="65" fill="#22552b" opacity="0.92"/>
+        <ellipse cx="-4" cy="-46" rx="53" ry="46" fill="#4b9a4a" opacity="0.85"/>
+        <ellipse cx="11" cy="-61" rx="34" ry="30" fill="#9bd07a" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(508 480)">
+        <rect x="-8" y="0" width="16" height="121" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-43" rx="108" ry="92" fill="#22552b" opacity="0.92"/>
+        <ellipse cx="-8" cy="-65" rx="75" ry="65" fill="#4b9a4a" opacity="0.85"/>
+        <ellipse cx="15" cy="-86" rx="49" ry="43" fill="#9bd07a" opacity="0.75"/>
+      </g>
+  
+      <ellipse cx="998" cy="699" rx="62" ry="40" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="1008" cy="680" rx="40" ry="28" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="784" cy="725" rx="74" ry="48" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="788" cy="702" rx="48" ry="33" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="736" cy="573" rx="59" ry="38" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="748" cy="555" rx="38" ry="27" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="348" cy="753" rx="63" ry="41" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="357" cy="735" rx="41" ry="28" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="869" cy="745" rx="43" ry="28" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="875" cy="732" rx="28" ry="19" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="711" cy="709" rx="48" ry="31" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="714" cy="694" rx="31" ry="22" fill="#9bd07a" opacity="0.8"/>
+  
+    <path d="M0 750 Q 300 690 600 740 T 1200 720 L 1200 800 L 0 800 Z" fill="#7a4f24" opacity="0.55"/>
+    <path d="M0 760 Q 300 700 600 750 T 1200 730" stroke="#f3eec0" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <rect x="40" y="40" width="320" height="64" rx="12" fill="rgba(8, 14, 8, 0.55)"/>
+  <text x="60" y="80" font-family="Geist, Inter, sans-serif" font-size="22" font-weight="600" fill="#f3eec0">Anwesen Wimmer</text>
+</svg>

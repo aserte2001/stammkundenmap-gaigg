@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Garten von Familie Gruber">
+  <defs>
+    <linearGradient id="sky-c-002" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="hsl(206 38% 18%)"/>
+      <stop offset="60%" stop-color="hsl(191 30% 30%)"/>
+      <stop offset="100%" stop-color="#0d1c0d"/>
+    </linearGradient>
+    <radialGradient id="sun-c-002" cx="78%" cy="22%" r="40%">
+      <stop offset="0%" stop-color="rgba(255, 235, 180, 0.55)"/>
+      <stop offset="60%" stop-color="rgba(255, 235, 180, 0)"/>
+    </radialGradient>
+    <linearGradient id="ground-c-002" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22552b"/>
+      <stop offset="100%" stop-color="#0d1c0d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky-c-002)"/>
+  <rect width="1200" height="800" fill="url(#sun-c-002)"/>
+  <path d="M0 460 Q 300 380 600 440 T 1200 420 L 1200 800 L 0 800 Z" fill="url(#ground-c-002)"/>
+  
+  
+      <g transform="translate(1010 601)">
+        <rect x="-8" y="0" width="16" height="108" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-39" rx="98" ry="83" fill="#22552b" opacity="0.92"/>
+        <ellipse cx="2" cy="-59" rx="69" ry="59" fill="#4b9a4a" opacity="0.85"/>
+        <ellipse cx="0" cy="-79" rx="44" ry="39" fill="#9bd07a" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(518 665)">
+        <rect x="-8" y="0" width="16" height="99" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-49" rx="123" ry="104" fill="#22552b" opacity="0.92"/>
+        <ellipse cx="11" cy="-74" rx="86" ry="74" fill="#4b9a4a" opacity="0.85"/>
+        <ellipse cx="10" cy="-98" rx="55" ry="49" fill="#9bd07a" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(858 558)">
+        <rect x="-8" y="0" width="16" height="112" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-36" rx="90" ry="77" fill="#22552b" opacity="0.92"/>
+        <ellipse cx="-1" cy="-54" rx="63" ry="54" fill="#4b9a4a" opacity="0.85"/>
+        <ellipse cx="15" cy="-72" rx="41" ry="36" fill="#9bd07a" opacity="0.75"/>
+      </g>
+  
+      <ellipse cx="544" cy="543" rx="30" ry="19" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="551" cy="535" rx="19" ry="13" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="550" cy="619" rx="52" ry="34" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="551" cy="603" rx="34" ry="24" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="1048" cy="726" rx="47" ry="30" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="1051" cy="712" rx="30" ry="21" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="611" cy="564" rx="49" ry="32" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="616" cy="549" rx="32" ry="22" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="474" cy="732" rx="35" ry="23" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="482" cy="721" rx="23" ry="16" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="800" cy="720" rx="74" ry="48" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="808" cy="698" rx="48" ry="33" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="270" cy="541" rx="30" ry="19" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="280" cy="532" rx="19" ry="13" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="223" cy="674" rx="76" ry="49" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="231" cy="651" rx="49" ry="34" fill="#9bd07a" opacity="0.8"/>
+  
+    <path d="M0 750 Q 300 690 600 740 T 1200 720 L 1200 800 L 0 800 Z" fill="#bcae8a" opacity="0.55"/>
+    <path d="M0 760 Q 300 700 600 750 T 1200 730" stroke="#f3eec0" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <rect x="40" y="40" width="320" height="64" rx="12" fill="rgba(8, 14, 8, 0.55)"/>
+  <text x="60" y="80" font-family="Geist, Inter, sans-serif" font-size="22" font-weight="600" fill="#f3eec0">Familie Gruber</text>
+</svg>

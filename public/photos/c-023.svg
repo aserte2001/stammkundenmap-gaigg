@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Garten von Volksgarten Linz">
+  <defs>
+    <linearGradient id="sky-c-023" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="hsl(234 38% 18%)"/>
+      <stop offset="60%" stop-color="hsl(219 30% 30%)"/>
+      <stop offset="100%" stop-color="#0a1f2a"/>
+    </linearGradient>
+    <radialGradient id="sun-c-023" cx="78%" cy="22%" r="40%">
+      <stop offset="0%" stop-color="rgba(255, 235, 180, 0.55)"/>
+      <stop offset="60%" stop-color="rgba(255, 235, 180, 0)"/>
+    </radialGradient>
+    <linearGradient id="ground-c-023" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1d4c5e"/>
+      <stop offset="100%" stop-color="#0a1f2a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky-c-023)"/>
+  <rect width="1200" height="800" fill="url(#sun-c-023)"/>
+  <path d="M0 460 Q 300 380 600 440 T 1200 420 L 1200 800 L 0 800 Z" fill="url(#ground-c-023)"/>
+  <ellipse cx="859" cy="664" rx="178" ry="37" fill="#3a8fb0" opacity="0.85"/>
+  
+      <g transform="translate(549 579)">
+        <rect x="-8" y="0" width="16" height="126" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-33" rx="82" ry="69" fill="#1d4c5e" opacity="0.92"/>
+        <ellipse cx="-9" cy="-49" rx="57" ry="49" fill="#3e8a8f" opacity="0.85"/>
+        <ellipse cx="-10" cy="-65" rx="37" ry="33" fill="#86c8b8" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(503 517)">
+        <rect x="-8" y="0" width="16" height="135" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-35" rx="87" ry="74" fill="#1d4c5e" opacity="0.92"/>
+        <ellipse cx="-1" cy="-52" rx="61" ry="52" fill="#3e8a8f" opacity="0.85"/>
+        <ellipse cx="-6" cy="-69" rx="39" ry="35" fill="#86c8b8" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(1101 616)">
+        <rect x="-8" y="0" width="16" height="128" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-39" rx="98" ry="83" fill="#1d4c5e" opacity="0.92"/>
+        <ellipse cx="10" cy="-59" rx="68" ry="59" fill="#3e8a8f" opacity="0.85"/>
+        <ellipse cx="6" cy="-78" rx="44" ry="39" fill="#86c8b8" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(911 491)">
+        <rect x="-8" y="0" width="16" height="105" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-41" rx="102" ry="87" fill="#1d4c5e" opacity="0.92"/>
+        <ellipse cx="-14" cy="-61" rx="71" ry="61" fill="#3e8a8f" opacity="0.85"/>
+        <ellipse cx="11" cy="-81" rx="46" ry="41" fill="#86c8b8" opacity="0.75"/>
+      </g>
+  
+      <ellipse cx="358" cy="553" rx="47" ry="31" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="359" cy="539" rx="31" ry="21" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="819" cy="659" rx="67" ry="44" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="821" cy="639" rx="44" ry="30" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="224" cy="710" rx="65" ry="42" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="233" cy="690" rx="42" ry="29" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="105" cy="576" rx="47" ry="30" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="110" cy="562" rx="30" ry="21" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="506" cy="563" rx="52" ry="33" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="513" cy="548" rx="33" ry="23" fill="#86c8b8" opacity="0.8"/>
+  
+    <path d="M0 750 Q 300 690 600 740 T 1200 720 L 1200 800 L 0 800 Z" fill="#7a4f24" opacity="0.55"/>
+    <path d="M0 760 Q 300 700 600 750 T 1200 730" stroke="#e6f5d6" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <rect x="40" y="40" width="320" height="64" rx="12" fill="rgba(8, 14, 8, 0.55)"/>
+  <text x="60" y="80" font-family="Geist, Inter, sans-serif" font-size="22" font-weight="600" fill="#e6f5d6">Volksgarten Linz</text>
+</svg>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Garten von Familie Lehner">
+  <defs>
+    <linearGradient id="sky-c-009" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="hsl(216 38% 18%)"/>
+      <stop offset="60%" stop-color="hsl(201 30% 30%)"/>
+      <stop offset="100%" stop-color="#0a1f2a"/>
+    </linearGradient>
+    <radialGradient id="sun-c-009" cx="78%" cy="22%" r="40%">
+      <stop offset="0%" stop-color="rgba(255, 235, 180, 0.55)"/>
+      <stop offset="60%" stop-color="rgba(255, 235, 180, 0)"/>
+    </radialGradient>
+    <linearGradient id="ground-c-009" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1d4c5e"/>
+      <stop offset="100%" stop-color="#0a1f2a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky-c-009)"/>
+  <rect width="1200" height="800" fill="url(#sun-c-009)"/>
+  <path d="M0 460 Q 300 380 600 440 T 1200 420 L 1200 800 L 0 800 Z" fill="url(#ground-c-009)"/>
+  <ellipse cx="750" cy="625" rx="163" ry="49" fill="#3a8fb0" opacity="0.85"/>
+  
+      <g transform="translate(545 630)">
+        <rect x="-8" y="0" width="16" height="132" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-49" rx="122" ry="104" fill="#1d4c5e" opacity="0.92"/>
+        <ellipse cx="-5" cy="-73" rx="86" ry="73" fill="#3e8a8f" opacity="0.85"/>
+        <ellipse cx="8" cy="-98" rx="55" ry="49" fill="#86c8b8" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(1040 493)">
+        <rect x="-8" y="0" width="16" height="143" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-34" rx="84" ry="72" fill="#1d4c5e" opacity="0.92"/>
+        <ellipse cx="15" cy="-51" rx="59" ry="51" fill="#3e8a8f" opacity="0.85"/>
+        <ellipse cx="15" cy="-68" rx="38" ry="34" fill="#86c8b8" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(872 612)">
+        <rect x="-8" y="0" width="16" height="90" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-46" rx="116" ry="99" fill="#1d4c5e" opacity="0.92"/>
+        <ellipse cx="6" cy="-70" rx="81" ry="70" fill="#3e8a8f" opacity="0.85"/>
+        <ellipse cx="3" cy="-93" rx="52" ry="46" fill="#86c8b8" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(203 627)">
+        <rect x="-8" y="0" width="16" height="96" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-41" rx="103" ry="87" fill="#1d4c5e" opacity="0.92"/>
+        <ellipse cx="3" cy="-62" rx="72" ry="62" fill="#3e8a8f" opacity="0.85"/>
+        <ellipse cx="-6" cy="-82" rx="46" ry="41" fill="#86c8b8" opacity="0.75"/>
+      </g>
+  
+      <ellipse cx="667" cy="581" rx="41" ry="27" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="672" cy="569" rx="27" ry="19" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="295" cy="733" rx="49" ry="32" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="301" cy="718" rx="32" ry="22" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="109" cy="726" rx="58" ry="38" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="118" cy="708" rx="38" ry="26" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="550" cy="583" rx="34" ry="22" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="554" cy="573" rx="22" ry="15" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="799" cy="610" rx="38" ry="25" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="806" cy="599" rx="25" ry="17" fill="#86c8b8" opacity="0.8"/>
+  
+    <path d="M0 750 Q 300 690 600 740 T 1200 720 L 1200 800 L 0 800 Z" fill="#bcae8a" opacity="0.55"/>
+    <path d="M0 760 Q 300 700 600 750 T 1200 730" stroke="#e6f5d6" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <rect x="40" y="40" width="320" height="64" rx="12" fill="rgba(8, 14, 8, 0.55)"/>
+  <text x="60" y="80" font-family="Geist, Inter, sans-serif" font-size="22" font-weight="600" fill="#e6f5d6">Familie Lehner</text>
+</svg>

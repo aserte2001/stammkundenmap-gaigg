@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Garten von Klosterhof Linz">
+  <defs>
+    <linearGradient id="sky-c-018" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="hsl(225 38% 18%)"/>
+      <stop offset="60%" stop-color="hsl(210 30% 30%)"/>
+      <stop offset="100%" stop-color="#0d1c0d"/>
+    </linearGradient>
+    <radialGradient id="sun-c-018" cx="78%" cy="22%" r="40%">
+      <stop offset="0%" stop-color="rgba(255, 235, 180, 0.55)"/>
+      <stop offset="60%" stop-color="rgba(255, 235, 180, 0)"/>
+    </radialGradient>
+    <linearGradient id="ground-c-018" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22552b"/>
+      <stop offset="100%" stop-color="#0d1c0d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky-c-018)"/>
+  <rect width="1200" height="800" fill="url(#sun-c-018)"/>
+  <path d="M0 460 Q 300 380 600 440 T 1200 420 L 1200 800 L 0 800 Z" fill="url(#ground-c-018)"/>
+  
+  
+      <g transform="translate(566 510)">
+        <rect x="-8" y="0" width="16" height="117" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-42" rx="104" ry="88" fill="#22552b" opacity="0.92"/>
+        <ellipse cx="7" cy="-62" rx="73" ry="62" fill="#4b9a4a" opacity="0.85"/>
+        <ellipse cx="-13" cy="-83" rx="47" ry="42" fill="#9bd07a" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(328 523)">
+        <rect x="-8" y="0" width="16" height="115" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-42" rx="105" ry="89" fill="#22552b" opacity="0.92"/>
+        <ellipse cx="-13" cy="-63" rx="73" ry="63" fill="#4b9a4a" opacity="0.85"/>
+        <ellipse cx="-7" cy="-84" rx="47" ry="42" fill="#9bd07a" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(605 530)">
+        <rect x="-8" y="0" width="16" height="147" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-48" rx="121" ry="103" fill="#22552b" opacity="0.92"/>
+        <ellipse cx="3" cy="-73" rx="85" ry="73" fill="#4b9a4a" opacity="0.85"/>
+        <ellipse cx="10" cy="-97" rx="55" ry="48" fill="#9bd07a" opacity="0.75"/>
+      </g>
+  
+      <ellipse cx="237" cy="589" rx="53" ry="35" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="242" cy="573" rx="35" ry="24" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="656" cy="646" rx="54" ry="35" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="656" cy="630" rx="35" ry="24" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="505" cy="737" rx="63" ry="41" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="514" cy="718" rx="41" ry="28" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="711" cy="729" rx="38" ry="25" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="717" cy="717" rx="25" ry="17" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="207" cy="753" rx="48" ry="31" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="208" cy="739" rx="31" ry="22" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="624" cy="755" rx="50" ry="33" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="636" cy="740" rx="33" ry="23" fill="#9bd07a" opacity="0.8"/>
+
+      <ellipse cx="705" cy="652" rx="30" ry="19" fill="#4b9a4a" opacity="0.85"/>
+      <ellipse cx="706" cy="643" rx="19" ry="13" fill="#9bd07a" opacity="0.8"/>
+  
+    <path d="M0 750 Q 300 690 600 740 T 1200 720 L 1200 800 L 0 800 Z" fill="#7d7b6b" opacity="0.55"/>
+    <path d="M0 760 Q 300 700 600 750 T 1200 730" stroke="#f3eec0" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <rect x="40" y="40" width="320" height="64" rx="12" fill="rgba(8, 14, 8, 0.55)"/>
+  <text x="60" y="80" font-family="Geist, Inter, sans-serif" font-size="22" font-weight="600" fill="#f3eec0">Klosterhof Linz</text>
+</svg>

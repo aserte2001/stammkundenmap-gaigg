@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Garten von Familie Stadler">
+  <defs>
+    <linearGradient id="sky-c-010" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="hsl(209 38% 18%)"/>
+      <stop offset="60%" stop-color="hsl(194 30% 30%)"/>
+      <stop offset="100%" stop-color="#0e1f12"/>
+    </linearGradient>
+    <radialGradient id="sun-c-010" cx="78%" cy="22%" r="40%">
+      <stop offset="0%" stop-color="rgba(255, 235, 180, 0.55)"/>
+      <stop offset="60%" stop-color="rgba(255, 235, 180, 0)"/>
+    </radialGradient>
+    <linearGradient id="ground-c-010" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1f4127"/>
+      <stop offset="100%" stop-color="#0e1f12"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky-c-010)"/>
+  <rect width="1200" height="800" fill="url(#sun-c-010)"/>
+  <path d="M0 460 Q 300 380 600 440 T 1200 420 L 1200 800 L 0 800 Z" fill="url(#ground-c-010)"/>
+  
+  
+      <g transform="translate(274 554)">
+        <rect x="-8" y="0" width="16" height="143" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-37" rx="94" ry="79" fill="#1f4127" opacity="0.92"/>
+        <ellipse cx="2" cy="-56" rx="65" ry="56" fill="#3a7d3a" opacity="0.85"/>
+        <ellipse cx="-1" cy="-75" rx="42" ry="37" fill="#7fbf5c" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(700 493)">
+        <rect x="-8" y="0" width="16" height="100" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-30" rx="76" ry="64" fill="#1f4127" opacity="0.92"/>
+        <ellipse cx="-3" cy="-45" rx="53" ry="45" fill="#3a7d3a" opacity="0.85"/>
+        <ellipse cx="-12" cy="-61" rx="34" ry="30" fill="#7fbf5c" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(416 489)">
+        <rect x="-8" y="0" width="16" height="137" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-48" rx="120" ry="102" fill="#1f4127" opacity="0.92"/>
+        <ellipse cx="-13" cy="-72" rx="84" ry="72" fill="#3a7d3a" opacity="0.85"/>
+        <ellipse cx="9" cy="-96" rx="54" ry="48" fill="#7fbf5c" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(951 516)">
+        <rect x="-8" y="0" width="16" height="122" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-40" rx="101" ry="85" fill="#1f4127" opacity="0.92"/>
+        <ellipse cx="2" cy="-60" rx="70" ry="60" fill="#3a7d3a" opacity="0.85"/>
+        <ellipse cx="4" cy="-80" rx="45" ry="40" fill="#7fbf5c" opacity="0.75"/>
+      </g>
+  
+      <ellipse cx="960" cy="630" rx="41" ry="27" fill="#3a7d3a" opacity="0.85"/>
+      <ellipse cx="960" cy="618" rx="27" ry="19" fill="#7fbf5c" opacity="0.8"/>
+
+      <ellipse cx="685" cy="569" rx="58" ry="37" fill="#3a7d3a" opacity="0.85"/>
+      <ellipse cx="692" cy="551" rx="37" ry="26" fill="#7fbf5c" opacity="0.8"/>
+
+      <ellipse cx="726" cy="667" rx="70" ry="45" fill="#3a7d3a" opacity="0.85"/>
+      <ellipse cx="735" cy="646" rx="45" ry="31" fill="#7fbf5c" opacity="0.8"/>
+
+      <ellipse cx="675" cy="567" rx="59" ry="38" fill="#3a7d3a" opacity="0.85"/>
+      <ellipse cx="685" cy="549" rx="38" ry="26" fill="#7fbf5c" opacity="0.8"/>
+
+      <ellipse cx="1075" cy="644" rx="60" ry="39" fill="#3a7d3a" opacity="0.85"/>
+      <ellipse cx="1077" cy="626" rx="39" ry="27" fill="#7fbf5c" opacity="0.8"/>
+
+      <ellipse cx="472" cy="739" rx="35" ry="23" fill="#3a7d3a" opacity="0.85"/>
+      <ellipse cx="483" cy="728" rx="23" ry="16" fill="#7fbf5c" opacity="0.8"/>
+  
+    <path d="M0 750 Q 300 690 600 740 T 1200 720 L 1200 800 L 0 800 Z" fill="#7a4f24" opacity="0.55"/>
+    <path d="M0 760 Q 300 700 600 750 T 1200 730" stroke="#dcefb1" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <rect x="40" y="40" width="320" height="64" rx="12" fill="rgba(8, 14, 8, 0.55)"/>
+  <text x="60" y="80" font-family="Geist, Inter, sans-serif" font-size="22" font-weight="600" fill="#dcefb1">Familie Stadler</text>
+</svg>

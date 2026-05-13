@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Garten von Familie Mayrhofer">
+  <defs>
+    <linearGradient id="sky-c-003" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="hsl(204 38% 18%)"/>
+      <stop offset="60%" stop-color="hsl(189 30% 30%)"/>
+      <stop offset="100%" stop-color="#1b1208"/>
+    </linearGradient>
+    <radialGradient id="sun-c-003" cx="78%" cy="22%" r="40%">
+      <stop offset="0%" stop-color="rgba(255, 235, 180, 0.55)"/>
+      <stop offset="60%" stop-color="rgba(255, 235, 180, 0)"/>
+    </radialGradient>
+    <linearGradient id="ground-c-003" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a2415"/>
+      <stop offset="100%" stop-color="#1b1208"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky-c-003)"/>
+  <rect width="1200" height="800" fill="url(#sun-c-003)"/>
+  <path d="M0 460 Q 300 380 600 440 T 1200 420 L 1200 800 L 0 800 Z" fill="url(#ground-c-003)"/>
+  <ellipse cx="789" cy="658" rx="184" ry="35" fill="#266c8a" opacity="0.85"/>
+  
+      <g transform="translate(899 667)">
+        <rect x="-8" y="0" width="16" height="127" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-48" rx="121" ry="103" fill="#3a2415" opacity="0.92"/>
+        <ellipse cx="12" cy="-72" rx="85" ry="72" fill="#6f4520" opacity="0.85"/>
+        <ellipse cx="-10" cy="-97" rx="54" ry="48" fill="#b6884c" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(1063 657)">
+        <rect x="-8" y="0" width="16" height="127" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-33" rx="83" ry="71" fill="#3a2415" opacity="0.92"/>
+        <ellipse cx="8" cy="-50" rx="58" ry="50" fill="#6f4520" opacity="0.85"/>
+        <ellipse cx="8" cy="-66" rx="37" ry="33" fill="#b6884c" opacity="0.75"/>
+      </g>
+  
+      <ellipse cx="825" cy="558" rx="67" ry="44" fill="#6f4520" opacity="0.85"/>
+      <ellipse cx="832" cy="538" rx="44" ry="30" fill="#b6884c" opacity="0.8"/>
+
+      <ellipse cx="296" cy="623" rx="48" ry="31" fill="#6f4520" opacity="0.85"/>
+      <ellipse cx="305" cy="608" rx="31" ry="21" fill="#b6884c" opacity="0.8"/>
+
+      <ellipse cx="675" cy="638" rx="39" ry="25" fill="#6f4520" opacity="0.85"/>
+      <ellipse cx="678" cy="626" rx="25" ry="18" fill="#b6884c" opacity="0.8"/>
+
+      <ellipse cx="639" cy="755" rx="54" ry="35" fill="#6f4520" opacity="0.85"/>
+      <ellipse cx="649" cy="739" rx="35" ry="24" fill="#b6884c" opacity="0.8"/>
+
+      <ellipse cx="1105" cy="579" rx="39" ry="25" fill="#6f4520" opacity="0.85"/>
+      <ellipse cx="1110" cy="567" rx="25" ry="18" fill="#b6884c" opacity="0.8"/>
+  
+    <path d="M0 750 Q 300 690 600 740 T 1200 720 L 1200 800 L 0 800 Z" fill="#7d7b6b" opacity="0.55"/>
+    <path d="M0 760 Q 300 700 600 750 T 1200 730" stroke="#e9d49a" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <rect x="40" y="40" width="320" height="64" rx="12" fill="rgba(8, 14, 8, 0.55)"/>
+  <text x="60" y="80" font-family="Geist, Inter, sans-serif" font-size="22" font-weight="600" fill="#e9d49a">Familie Mayrhofer</text>
+</svg>

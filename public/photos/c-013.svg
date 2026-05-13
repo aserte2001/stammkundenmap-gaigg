@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Garten von Familie Plöchl">
+  <defs>
+    <linearGradient id="sky-c-013" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="hsl(207 38% 18%)"/>
+      <stop offset="60%" stop-color="hsl(192 30% 30%)"/>
+      <stop offset="100%" stop-color="#0a1f2a"/>
+    </linearGradient>
+    <radialGradient id="sun-c-013" cx="78%" cy="22%" r="40%">
+      <stop offset="0%" stop-color="rgba(255, 235, 180, 0.55)"/>
+      <stop offset="60%" stop-color="rgba(255, 235, 180, 0)"/>
+    </radialGradient>
+    <linearGradient id="ground-c-013" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1d4c5e"/>
+      <stop offset="100%" stop-color="#0a1f2a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky-c-013)"/>
+  <rect width="1200" height="800" fill="url(#sun-c-013)"/>
+  <path d="M0 460 Q 300 380 600 440 T 1200 420 L 1200 800 L 0 800 Z" fill="url(#ground-c-013)"/>
+  
+  
+      <g transform="translate(869 665)">
+        <rect x="-8" y="0" width="16" height="97" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-29" rx="73" ry="62" fill="#1d4c5e" opacity="0.92"/>
+        <ellipse cx="-10" cy="-44" rx="51" ry="44" fill="#3e8a8f" opacity="0.85"/>
+        <ellipse cx="-3" cy="-58" rx="33" ry="29" fill="#86c8b8" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(1077 574)">
+        <rect x="-8" y="0" width="16" height="130" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-40" rx="100" ry="85" fill="#1d4c5e" opacity="0.92"/>
+        <ellipse cx="-9" cy="-60" rx="70" ry="60" fill="#3e8a8f" opacity="0.85"/>
+        <ellipse cx="-7" cy="-80" rx="45" ry="40" fill="#86c8b8" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(433 600)">
+        <rect x="-8" y="0" width="16" height="136" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-28" rx="71" ry="60" fill="#1d4c5e" opacity="0.92"/>
+        <ellipse cx="-2" cy="-42" rx="50" ry="42" fill="#3e8a8f" opacity="0.85"/>
+        <ellipse cx="11" cy="-57" rx="32" ry="28" fill="#86c8b8" opacity="0.75"/>
+      </g>
+  
+      <ellipse cx="907" cy="682" rx="56" ry="36" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="915" cy="666" rx="36" ry="25" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="801" cy="565" rx="70" ry="45" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="808" cy="545" rx="45" ry="31" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="991" cy="760" rx="32" ry="21" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="1002" cy="750" rx="21" ry="14" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="778" cy="746" rx="58" ry="37" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="783" cy="728" rx="37" ry="26" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="836" cy="704" rx="37" ry="24" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="845" cy="693" rx="24" ry="17" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="938" cy="587" rx="70" ry="46" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="945" cy="566" rx="46" ry="32" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="1041" cy="685" rx="60" ry="39" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="1045" cy="667" rx="39" ry="27" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="869" cy="559" rx="42" ry="27" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="869" cy="546" rx="27" ry="19" fill="#86c8b8" opacity="0.8"/>
+
+      <ellipse cx="997" cy="714" rx="29" ry="19" fill="#3e8a8f" opacity="0.85"/>
+      <ellipse cx="1009" cy="706" rx="19" ry="13" fill="#86c8b8" opacity="0.8"/>
+  
+    <path d="M0 750 Q 300 690 600 740 T 1200 720 L 1200 800 L 0 800 Z" fill="#7a4f24" opacity="0.55"/>
+    <path d="M0 760 Q 300 700 600 750 T 1200 730" stroke="#e6f5d6" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <rect x="40" y="40" width="320" height="64" rx="12" fill="rgba(8, 14, 8, 0.55)"/>
+  <text x="60" y="80" font-family="Geist, Inter, sans-serif" font-size="22" font-weight="600" fill="#e6f5d6">Familie Plöchl</text>
+</svg>

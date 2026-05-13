@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Garten von Hotel Wolfinger">
+  <defs>
+    <linearGradient id="sky-c-016" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="hsl(213 38% 18%)"/>
+      <stop offset="60%" stop-color="hsl(198 30% 30%)"/>
+      <stop offset="100%" stop-color="#1b1208"/>
+    </linearGradient>
+    <radialGradient id="sun-c-016" cx="78%" cy="22%" r="40%">
+      <stop offset="0%" stop-color="rgba(255, 235, 180, 0.55)"/>
+      <stop offset="60%" stop-color="rgba(255, 235, 180, 0)"/>
+    </radialGradient>
+    <linearGradient id="ground-c-016" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a2415"/>
+      <stop offset="100%" stop-color="#1b1208"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky-c-016)"/>
+  <rect width="1200" height="800" fill="url(#sun-c-016)"/>
+  <path d="M0 460 Q 300 380 600 440 T 1200 420 L 1200 800 L 0 800 Z" fill="url(#ground-c-016)"/>
+  
+  
+      <g transform="translate(992 533)">
+        <rect x="-8" y="0" width="16" height="105" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-32" rx="79" ry="67" fill="#3a2415" opacity="0.92"/>
+        <ellipse cx="3" cy="-48" rx="56" ry="48" fill="#6f4520" opacity="0.85"/>
+        <ellipse cx="14" cy="-63" rx="36" ry="32" fill="#b6884c" opacity="0.75"/>
+      </g>
+
+      <g transform="translate(810 490)">
+        <rect x="-8" y="0" width="16" height="142" rx="4" fill="#3a2410"/>
+        <ellipse cx="0" cy="-43" rx="108" ry="92" fill="#3a2415" opacity="0.92"/>
+        <ellipse cx="-3" cy="-65" rx="75" ry="65" fill="#6f4520" opacity="0.85"/>
+        <ellipse cx="-1" cy="-86" rx="49" ry="43" fill="#b6884c" opacity="0.75"/>
+      </g>
+  
+      <ellipse cx="539" cy="651" rx="28" ry="18" fill="#6f4520" opacity="0.85"/>
+      <ellipse cx="550" cy="642" rx="18" ry="13" fill="#b6884c" opacity="0.8"/>
+
+      <ellipse cx="727" cy="743" rx="37" ry="24" fill="#6f4520" opacity="0.85"/>
+      <ellipse cx="738" cy="732" rx="24" ry="16" fill="#b6884c" opacity="0.8"/>
+
+      <ellipse cx="521" cy="695" rx="57" ry="37" fill="#6f4520" opacity="0.85"/>
+      <ellipse cx="532" cy="677" rx="37" ry="26" fill="#b6884c" opacity="0.8"/>
+
+      <ellipse cx="1135" cy="627" rx="53" ry="34" fill="#6f4520" opacity="0.85"/>
+      <ellipse cx="1146" cy="611" rx="34" ry="24" fill="#b6884c" opacity="0.8"/>
+
+      <ellipse cx="926" cy="555" rx="51" ry="33" fill="#6f4520" opacity="0.85"/>
+      <ellipse cx="938" cy="540" rx="33" ry="23" fill="#b6884c" opacity="0.8"/>
+
+      <ellipse cx="733" cy="541" rx="48" ry="31" fill="#6f4520" opacity="0.85"/>
+      <ellipse cx="734" cy="526" rx="31" ry="22" fill="#b6884c" opacity="0.8"/>
+  
+    <path d="M0 750 Q 300 690 600 740 T 1200 720 L 1200 800 L 0 800 Z" fill="#7a4f24" opacity="0.55"/>
+    <path d="M0 760 Q 300 700 600 750 T 1200 730" stroke="#e9d49a" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <rect x="40" y="40" width="320" height="64" rx="12" fill="rgba(8, 14, 8, 0.55)"/>
+  <text x="60" y="80" font-family="Geist, Inter, sans-serif" font-size="22" font-weight="600" fill="#e9d49a">Hotel Wolfinger</text>
+</svg>
