@@ -1,0 +1,33 @@
+name: Lighthouse CI
+
+on:
+  deployment_status:
+
+jobs:
+  lighthouse:
+    name: Lighthouse audit on Vercel preview
+    if: github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.13.x
+      - name: Run Lighthouse
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          DEPLOY_URL: ${{ github.event.deployment_status.target_url }}
+        run: |
+          lhci autorun \
+            --collect.url="$DEPLOY_URL" \
+            --collect.numberOfRuns=2 \
+            --collect.settings.preset=desktop \
+            --upload.target=temporary-public-storage \
+            --assert.preset=lighthouse:no-pwa \
+            --assert.assertions.categories:performance=warn:0.85 \
+            --assert.assertions.categories:accessibility=error:0.95 \
+            --assert.assertions.categories:best-practices=error:0.95 \
+            --assert.assertions.categories:seo=error:1.00
