@@ -143,4 +143,15 @@ Alle Fallbacks sind in `gotchas.md` mit Trigger/Symptom/Fix/Prevention dokumenti
 Siehe README-Sektion „Manuelles Deploy auf Vercel". Wenn der autonome Lauf das Deploy-Step ausgeführt hat, steht die Live-URL hier:
 
 - **Repo**: https://github.com/aserte2001/stammkundenmap-gaigg
-- **Live URL**: _wird nach Phase 10 Deploy eingetragen_
+- **Live URL**: **https://stammkundenmap-gaigg.vercel.app**
+- **Vercel Inspector**: https://vercel.com/aserte2001s-projects/stammkundenmap-gaigg/94WVeoVQQgnXYNisrUVB9y4hm7w7
+- **Production Deploy-ID**: `dpl_94WVeoVQQgnXYNisrUVB9y4hm7w7` · Build 46 s · 8 statische Routes prerendered · X-Vercel-Cache: PRERENDER · region fra1.
+
+### Phase 10 — Deploy & Verification ✅
+
+- `vercel link --yes --project stammkundenmap-gaigg` → Projekt `aserte2001s-projects/stammkundenmap-gaigg` automatisch erstellt, GitHub-Repo verbunden (Auto-Deploys bei jedem Push aktiv).
+- `vercel env add NEXT_PUBLIC_MAPBOX_TOKEN production` via stdin-pipe gesetzt.
+- `vercel deploy --prod --yes` → Build 46 s, 8 static pages prerendered, status READY.
+- Smoke-Test: `curl -I` gegen Live-URL → `HTTP/1.1 200`, `Content-Type: text/html; charset=utf-8`, `X-Nextjs-Prerender: 1`, `Strict-Transport-Security` aktiv.
+- HTML-Sniff: `lang="de-AT"`, `class="…dark"`, Geist Sans+Mono preloaded, alle Turbopack-Chunks async.
+- **Workflow-Files (CI/Lighthouse)** sind im lokalen Repo unter `.github/workflows/` gehalten, aber **nicht** im GitHub-Remote — der eingerichtete Personal Access Token hat nur `admin:org, repo` Scopes, `workflow`-Scope fehlt (gh CLI würde `gh auth refresh -s workflow` benötigen, das ist ein interaktiver Browser-Flow). Workaround: Vercel-Auto-Deploys via GitHub-Integration ersetzen die CI-Build-Stage, alle anderen Gates (lint/typecheck/vitest/playwright) sind lokal verifiziert. Lighthouse-Audit kann nach Bedarf auf https://pagespeed.web.dev/ gegen die Live-URL gefahren werden.

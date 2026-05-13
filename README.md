@@ -4,6 +4,8 @@ Eine premium-interaktive Karte der 25 Stammkunden der fiktiven „Gartengestaltu
 
 > 🌱 _„Premium-Gartenpflege seit 2011"_
 
+**🌐 Live**: [stammkundenmap-gaigg.vercel.app](https://stammkundenmap-gaigg.vercel.app) · **📦 Repo**: [aserte2001/stammkundenmap-gaigg](https://github.com/aserte2001/stammkundenmap-gaigg)
+
 ## ✨ Features
 
 - **Mapbox GL JS v3** — Globe-Projektion, „dusk" light-preset, native 3D-Buildings über `show3dObjects`
