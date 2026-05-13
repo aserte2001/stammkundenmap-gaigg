@@ -155,3 +155,41 @@ Siehe README-Sektion „Manuelles Deploy auf Vercel". Wenn der autonome Lauf das
 - Smoke-Test: `curl -I` gegen Live-URL → `HTTP/1.1 200`, `Content-Type: text/html; charset=utf-8`, `X-Nextjs-Prerender: 1`, `Strict-Transport-Security` aktiv.
 - HTML-Sniff: `lang="de-AT"`, `class="…dark"`, Geist Sans+Mono preloaded, alle Turbopack-Chunks async.
 - **Workflow-Files (CI/Lighthouse)** sind im lokalen Repo unter `.github/workflows/` gehalten, aber **nicht** im GitHub-Remote — der eingerichtete Personal Access Token hat nur `admin:org, repo` Scopes, `workflow`-Scope fehlt (gh CLI würde `gh auth refresh -s workflow` benötigen, das ist ein interaktiver Browser-Flow). Workaround: Vercel-Auto-Deploys via GitHub-Integration ersetzen die CI-Build-Stage, alle anderen Gates (lint/typecheck/vitest/playwright) sind lokal verifiziert. Lighthouse-Audit kann nach Bedarf auf https://pagespeed.web.dev/ gegen die Live-URL gefahren werden.
+
+### Phase 10b — Post-Deploy Hotfix ✅
+
+Direkt nach dem ersten Live-Deploy kam beim User in Chrome DevTools ein „This page couldn't load" zurück. Server-side lieferte die URL 200 + komplettes HTML; alle Critical-JS-Chunks waren als 200 erreichbar. Der Bug lebte erst im Browser-Runtime.
+
+**Diagnose aus der Console**:
+
+```
+❌ Uncaught Error: Style is not done loading
+   at iL._checkLoaded → iL.serialize → Map.getStyle
+   at <our app-chunk>
+
+⚠️  Error while trying to use the following icon from the Manifest:
+    https://stammkundenmap-gaigg.vercel.app/icon
+    (Resource size is not correct - typo in the Manifest?)
+```
+
+**Root Cause** (siehe `gotchas.md` #003 + #004): In `map-canvas.tsx` rief der zweite useEffect (Style-Switch) `instance.getStyle()?.sprite` direkt auf, ohne zu prüfen, ob der Mapbox-Style fertig geladen ist. Beim Initial-Mount ist der Style aber noch async-loading → Mapbox v3 wirft `_checkLoaded` aus `getStyle()` → React-Effect-Body unhandled exception → React-Tree crashed → Chromium zeigt seinen generischen „page couldn't load"-Fallback.
+
+Bonus-Bug: `mapStyle` und `isIntroComplete` als Effect-Dependencies → bei jedem Style-Switch wäre die Mapbox-Instanz komplett zerstört und neu gebaut worden (Performance + zweite Race).
+
+**Fix** (commit `f9076e2`):
+
+1. `lastStyleKeyRef`-Pattern: Style-Switch-Effect kehrt sofort zurück, wenn aktueller Key = letzter gesetzter Key. Beim Initial-Mount sind die identisch → kein `getStyle()`-Call.
+2. Initial-Werte (`mapStyle`, `isIntroComplete`) via `useRef` gecaptured, statt als Effect-Deps. Mapbox-Instanz wird jetzt garantiert **exakt einmal** pro Component-Lifetime gebaut.
+3. `three-d-buildings-layer.tsx` zusätzlich mit `map.isStyleLoaded()` + try/catch um den `getStyle()`-Call gewrappt.
+4. `onError` im map-canvas prüft `isStyleLoaded()` bevor er `getStyle().name` ausliest.
+5. PWA-Manifest: `sizes: "any"` → `"64x64"` für `/icon` (W3C-Spec: `"any"` ist Vector-Formaten vorbehalten).
+
+**Verifikation**:
+
+- typecheck clean · lint 0 errors · 55/55 vitest passing
+- production build 5.3 s, 8 static pages prerendered
+- Vercel Auto-Deploy via GitHub-Integration: Build 37 s, status Ready
+- Server-side: Manifest jetzt `"sizes":"64x64"`, Etag neu (`481beba…`), HTTP 200
+- Client-side: User-Hard-Reload (`Ctrl+Shift+R`) auf https://stammkundenmap-gaigg.vercel.app sollte jetzt Console clean liefern und Map rendern.
+
+**Lehre**: Vor „done"-Sign-off bei Karten-/Three-/Player-SDK-Apps mindestens ein DevTools-Console-Check auf der Production-URL fahren. Server-side curl + statisches HTML waren clean — der Bug saß genau im Initial-Hydration-Tick.
