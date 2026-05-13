@@ -104,7 +104,12 @@ export function CustomerPinLayer() {
         },
       });
 
-      // Pin symbols
+      // Pin symbols.
+      // NOTE: Mapbox GL v3 dereferences `layer.paint` internally during
+      // `Bucket.updateFeatures → _evaluateColorValue` without null-guarding —
+      // a symbol layer without an explicit `paint` block crashes per-frame
+      // with `Cannot read properties of undefined (reading 'paint')`.
+      // Provide an explicit (functional) paint block as a hard requirement.
       map.addLayer({
         id: "gaigg-pin-symbols",
         type: "symbol",
@@ -117,6 +122,14 @@ export function CustomerPinLayer() {
           "icon-allow-overlap": true,
           "icon-ignore-placement": true,
           "icon-anchor": "center",
+        },
+        paint: {
+          "icon-opacity": [
+            "case",
+            ["boolean", ["feature-state", "hover"], false],
+            1,
+            0.92,
+          ],
         },
       });
 
