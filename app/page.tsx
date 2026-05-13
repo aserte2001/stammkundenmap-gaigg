@@ -1,4 +1,6 @@
 import { Logo } from "@/components/brand/logo";
+import { ClusterHeatLayer } from "@/components/map/cluster-heat-layer";
+import { CustomerPinLayer } from "@/components/map/customer-pin-layer";
 import { IntroAnimation } from "@/components/map/intro-animation";
 import { MapControls } from "@/components/map/map-controls";
 import { MapShell } from "@/components/map/map-shell";
@@ -10,6 +12,8 @@ export default function HomePage() {
     <main className="relative h-dvh w-full overflow-hidden bg-background text-foreground">
       <MapShell>
         <ThreeDBuildingsLayer />
+        <ClusterHeatLayer />
+        <CustomerPinLayer />
         <MapControls />
         <IntroAnimation />
       </MapShell>
