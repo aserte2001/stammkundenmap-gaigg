@@ -1,13 +1,27 @@
 import { Logo } from "@/components/brand/logo";
+import { IntroAnimation } from "@/components/map/intro-animation";
+import { MapControls } from "@/components/map/map-controls";
+import { MapShell } from "@/components/map/map-shell";
+import { MapStyleSwitcher } from "@/components/map/map-style-switcher";
+import { ThreeDBuildingsLayer } from "@/components/map/three-d-buildings-layer";
 
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground">
-      <div className="flex flex-col items-center gap-6">
-        <Logo size={96} />
-        <h1 className="text-3xl font-bold tracking-tight">Stammkunden-Map</h1>
-        <p className="text-muted-foreground">Karte wird geladen…</p>
-      </div>
+    <main className="relative h-dvh w-full overflow-hidden bg-background text-foreground">
+      <MapShell>
+        <ThreeDBuildingsLayer />
+        <MapControls />
+        <IntroAnimation />
+      </MapShell>
+
+      <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-4 p-4">
+        <div className="pointer-events-auto rounded-2xl bg-card/85 px-4 py-3 backdrop-blur">
+          <Logo size={36} />
+        </div>
+        <div className="pointer-events-auto flex items-center gap-2">
+          <MapStyleSwitcher />
+        </div>
+      </header>
     </main>
   );
 }
