@@ -1,32 +1,28 @@
 /**
  * Centralised env-var access. Server-only secrets stay server-side;
  * `NEXT_PUBLIC_*` keys are inlined at build time and safe for client code.
+ *
+ * CRITICAL: Next.js / Turbopack only inlines `process.env.<LITERAL>` — dynamic
+ * lookups like `process.env[key]` survive to runtime, where the browser sees
+ * an empty `process.env` and we get `undefined`. So every `NEXT_PUBLIC_*` read
+ * MUST be a literal property access on `process.env`.
  */
 
-function readClientEnv(key: string): string | undefined {
-  const value = process.env[key];
-  if (!value || value.trim().length === 0) return undefined;
-  return value.trim();
-}
-
-function readServerEnv(key: string): string | undefined {
-  // Next.js never inlines non-NEXT_PUBLIC_ env vars into the client bundle,
-  // so reading directly is safe — `process.env` is undefined in the browser.
-  const value = typeof process !== "undefined" ? process.env[key] : undefined;
+function normaliseEnv(value: string | undefined): string | undefined {
   if (!value || value.trim().length === 0) return undefined;
   return value.trim();
 }
 
 export const clientEnv = {
-  mapboxToken: readClientEnv("NEXT_PUBLIC_MAPBOX_TOKEN"),
-  googleMapsApiKey: readClientEnv("NEXT_PUBLIC_GOOGLE_MAPS_API_KEY"),
+  mapboxToken: normaliseEnv(process.env.NEXT_PUBLIC_MAPBOX_TOKEN),
+  googleMapsApiKey: normaliseEnv(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY),
 } as const;
 
 export const serverEnv = {
-  openaiApiKey: readServerEnv("OPENAI_API_KEY"),
-  blobReadWriteToken: readServerEnv("BLOB_READ_WRITE_TOKEN"),
-  openaiDailyBudgetUsd: readServerEnv("OPENAI_DAILY_BUDGET_USD"),
-  googleTilesDailySessionCap: readServerEnv("GOOGLE_TILES_DAILY_SESSION_CAP"),
+  openaiApiKey: normaliseEnv(process.env.OPENAI_API_KEY),
+  blobReadWriteToken: normaliseEnv(process.env.BLOB_READ_WRITE_TOKEN),
+  openaiDailyBudgetUsd: normaliseEnv(process.env.OPENAI_DAILY_BUDGET_USD),
+  googleTilesDailySessionCap: normaliseEnv(process.env.GOOGLE_TILES_DAILY_SESSION_CAP),
 } as const;
 
 export function hasGoogleTiles(): boolean {

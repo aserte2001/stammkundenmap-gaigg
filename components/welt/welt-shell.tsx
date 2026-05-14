@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Customer } from "@/lib/customers";
 import type { Hotspot } from "@/lib/welt/hotspot-registry";
 import type { WeltEnvStatus } from "@/lib/welt/env-check";
@@ -31,36 +31,38 @@ type Props = {
 
 const ONBOARDING_FLAG = "welt.onboarded.v1";
 
-function subscribeNoop() {
-  return () => {};
-}
-
-function getWebglSnapshot(): boolean {
-  if (typeof window === "undefined") return true;
-  const canvas = document.createElement("canvas");
-  return !!(canvas.getContext("webgl2") || canvas.getContext("webgl"));
-}
-
-function getOnboardingSnapshot(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return window.localStorage.getItem(ONBOARDING_FLAG) !== "yes";
-  } catch {
-    return true;
-  }
-}
-
 export function WeltShell({ customer, hotspot, env, debug = false, skipOnboarding = false }: Props) {
-  const webglReady = useSyncExternalStore(subscribeNoop, getWebglSnapshot, () => true);
-  const onboardingDue = useSyncExternalStore(
-    subscribeNoop,
-    getOnboardingSnapshot,
-    () => false,
-  );
+  // Hydration-safe: first client render mirrors the server (mounted=false), so
+  // any feature detection that touches window/localStorage is deferred to the
+  // post-hydration effect. Without this, useSyncExternalStore with divergent
+  // server/client snapshots triggers React error #418 and tears down the tree
+  // before WeltCanvas can mount.
+  const [mounted, setMounted] = useState(false);
+  const [webglReady, setWebglReady] = useState(true);
+  const [onboardingDue, setOnboardingDue] = useState(false);
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
   const [tutorialOverride, setTutorialOverride] = useState(false);
+
+  useEffect(() => {
+    // Deliberate post-hydration state sync — see the comment above. React 18+
+    // batches these into a single render, so cascading-render concerns don't
+    // apply here.
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setMounted(true);
+    const canvas = document.createElement("canvas");
+    setWebglReady(!!(canvas.getContext("webgl2") || canvas.getContext("webgl")));
+    try {
+      setOnboardingDue(window.localStorage.getItem(ONBOARDING_FLAG) !== "yes");
+    } catch {
+      setOnboardingDue(true);
+    }
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
+
   const showOnboarding =
-    !skipOnboarding && (tutorialOverride || (onboardingDue && !onboardingDismissed));
+    mounted &&
+    !skipOnboarding &&
+    (tutorialOverride || (onboardingDue && !onboardingDismissed));
   const [paused, setPaused] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [canvasHandle, setCanvasHandle] = useState<WeltCanvasHandle | null>(null);
