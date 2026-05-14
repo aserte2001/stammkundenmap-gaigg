@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { CommandPalette } from "@/components/command-palette";
 import { DetailPanel } from "@/components/detail-panel/detail-panel";
 import { KeyboardNav } from "@/components/keyboard-nav";
@@ -7,11 +8,14 @@ import { IntroAnimation } from "@/components/map/intro-animation";
 import { MapControls } from "@/components/map/map-controls";
 import { MapShell } from "@/components/map/map-shell";
 import { MapStyleSwitcher } from "@/components/map/map-style-switcher";
+import { SelectCustomerFromUrl } from "@/components/map/select-customer-from-url";
 import { ThreeDBuildingsLayer } from "@/components/map/three-d-buildings-layer";
 import { ShortcutsDialog } from "@/components/shortcuts-dialog";
 import { Sidebar } from "@/components/sidebar/sidebar";
+import { hasOpenAI } from "@/lib/env";
 
 export default function HomePage() {
+  const visionAvailable = hasOpenAI();
   return (
     <main className="bg-background text-foreground relative h-dvh w-full overflow-hidden">
       <MapShell>
@@ -23,10 +27,13 @@ export default function HomePage() {
       </MapShell>
 
       <Sidebar />
-      <DetailPanel />
+      <DetailPanel visionAvailable={visionAvailable} />
       <CommandPalette />
       <ShortcutsDialog />
       <KeyboardNav />
+      <Suspense fallback={null}>
+        <SelectCustomerFromUrl />
+      </Suspense>
 
       <header className="pointer-events-none absolute top-4 right-4 z-20 flex items-center gap-2">
         <div className="pointer-events-auto">

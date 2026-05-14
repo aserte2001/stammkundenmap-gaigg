@@ -19,13 +19,15 @@
 │   │     └─ <CustomerList> (virtualised)                 │
 │   ├─ <DetailPanel> (Sheet)                              │
 │   │     ├─ <CustomerHeader> (photo, badges, route btn)  │
+│   │     ├─ <WeltCta> (Begehen → /welt/[id])             │
 │   │     └─ <ServiceTabs>                                │
 │   │           ├─ Overview                               │
 │   │           ├─ Timeline                               │
 │   │           ├─ Notes                                  │
-│   │           └─ <SplatViewer>                          │
-│   │                 ├─ <SplatIframe>                    │
-│   │                 └─ <SplatThreeRenderer>             │
+│   │           ├─ <SplatViewer>                          │
+│   │           │     ├─ <SplatIframe>                    │
+│   │           │     └─ <SplatThreeRenderer>             │
+│   │           └─ <VisionTab> (gpt-image-1 generator)    │
 │   ├─ <CommandPalette> (Cmd+K)                           │
 │   ├─ <ShortcutsDialog>                                  │
 │   └─ <KeyboardNav> (global listeners)                   │
@@ -100,9 +102,79 @@
 
 ## Tests
 
-- **Unit (vitest)**: 55 tests across format, geo, geojson, store. Coverage statements 87 % / functions 84 % / lines 86 %.
-- **E2E (Playwright)**: 5 spec files, run in Chromium and iPhone-13 viewport. Cover map load, sidebar visibility, search, filter, detail panel open/close, Escape behavior, reduced-motion intro skip.
-- **Lighthouse CI**: triggered on Vercel deployment_status (preview URLs) via `lighthouse.yml` workflow. Targets: performance ≥ 85, accessibility ≥ 95, best-practices ≥ 95, SEO 100.
+- **Unit (vitest)**: 103 tests across format, geo, geojson, store, welt-coordinates, welt-motion, welt-hotspots, welt-prompts, welt-rate-limit, welt-tiles-config, welt-env. Coverage on the `lib/` subtree well above the 80 % statement threshold.
+- **E2E (Playwright)**: 8 spec files run in Chromium + iPhone-13. Cover map load, sidebar, search, filter, detail panel, Escape, reduced-motion intro skip, **Welt route load + 404 fallback + OG image**, **Begehen-CTA**, **Vision-Tab disclaimer + API guard**.
+- **Lighthouse CI**: triggered on Vercel deployment_status. Targets: index `/` perf ≥ 85, a11y ≥ 95, best-practices ≥ 95, SEO 100. Welt `/welt/c-001` perf ≥ 70 (WebGL-Realität), a11y ≥ 95.
+
+## Welt-Subtree (`/welt/[customerId]`)
+
+```
+app/welt/[customerId]/
+├── page.tsx              Server-component, params: Promise<…>, JSON-LD <Place>, skip-link
+├── loading.tsx           Welt-Splash mit Spinner + "Linz wird gerendert…"
+├── error.tsx             Error-Boundary mit Reset + "Zurück zur Karte"
+└── opengraph-image.tsx   Edge-runtime, customer-spezifisches OG-PNG 1200×630
+
+components/welt/
+├── welt-shell.tsx          Client-Composition, useSyncExternalStore für WebGL + Onboarding-Flag
+├── welt-canvas.tsx         Three.js + 3d-tiles-renderer + Luma-Splats + FirstPersonControls
+├── welt-canvas-types.ts    Telemetry + Handle-Typen
+├── welt-controls/
+│   └── first-person-controls.ts   PointerLock + WASD + Touch (Mobile)
+├── welt-hud.tsx            Mini-Map, Kompass, Hotspot-Pills, FPS, Audio-Toggle, Skip-Link-Target
+├── welt-unavailable.tsx    Friendly Fallback ohne Google-Key / ohne WebGL
+├── onboarding-overlay.tsx  3-Schritt-Tutorial, localStorage `welt.onboarded.v1`
+├── escape-overlay.tsx      ESC = Pause-Menu, Resume / Tutorial / Audio / Zurück
+├── ambient-audio.tsx       Vogel-Wind-Ambient mit Fade-In/Out
+└── touch-joystick.tsx      Virtueller Stick für Mobile
+
+lib/welt/
+├── coordinates.ts          WGS84-Ellipsoid Helpers, ECEF↔Geo, ENU-Basis, Spawn-Pose
+├── tiles-config.ts         GOOGLE_TILES_ROOT, Performance-Tier-Detection, Tier-Configs
+├── hotspot-registry.ts     Splat-Hotspots pro Customer-ID
+├── motion.ts               Walking/Sprint/Fly Velocity-Math + Friction-Integration
+└── env-check.ts            `hasGoogleTiles()`, `hasOpenAI()`, `getWeltEnvStatus()`
+
+lib/openai/
+├── client.ts               OpenAI-SDK Wrapper, server-only
+├── prompts.ts              Stil + Saison → Prompt Templates
+├── rate-limit.ts           In-Memory-Bucket pro IP
+└── image-cache.ts          Vercel-Blob + Memory-LRU Cache
+```
+
+### Datenfluss Welt-Render
+
+1. **Server**: `page.tsx` validiert `customerId`, holt env-Status, baut JSON-LD-Schema.
+2. **Hydration**: `<WeltShell>` mountet, checkt WebGL + Onboarding via `useSyncExternalStore`.
+3. **Canvas-Mount**: `<WeltCanvas>` (dynamic, ssr:false) initialisiert:
+   - `WebGLRenderer` (DPR-clamped auf 2)
+   - Camera (`fov=70, near=1, far=50_000_000`) an Spawn-Pose 80 m süd-östlich + 32 m über Kunde
+   - `TilesRenderer` + `GoogleCloudAuthPlugin` mit dem Browser-Key
+   - `FirstPersonControls` mit Yaw/Pitch im local-tangent-Frame
+4. **Frame-Loop**:
+   - `tilesRenderer.update()` → Streaming-LoD basierend auf Camera
+   - Velocity-Integration mit Friction (motion.ts)
+   - Ground-Clamp via Raycast gegen `tilesRenderer.group`
+   - Hotspot-Proximity-Check → ensureSplat/removeSplat
+   - Telemetry-Throttle 500 ms → onTelemetry callback
+5. **Cleanup**: `dispose()` an Tiles, Renderer, Splats, Controls; Event-Listener entfernen.
+
+### Vision-API-Pfad
+
+```
+Client (<VisionTab>) ─POST─▶ /api/vision/generate
+                                │
+                                ├── Zod-light Validation (style/season)
+                                ├── Rate-Limit-Bucket (3/min/IP)
+                                ├── Cache: vision::<id>::<style>::<season>::v1
+                                │     ├── Memory-LRU (always)
+                                │     └── Vercel Blob (wenn token gesetzt)
+                                │
+                                ├── Cache-Miss → OpenAI Images Generate
+                                │     model=gpt-image-1, 1024×1024, quality=high
+                                │
+                                └── return { dataUrl, cached, promptUsed, durationMs }
+```
 
 ## Trade-offs & Future Work
 

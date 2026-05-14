@@ -193,3 +193,108 @@ Bonus-Bug: `mapStyle` und `isIntroComplete` als Effect-Dependencies → bei jede
 - Client-side: User-Hard-Reload (`Ctrl+Shift+R`) auf https://stammkundenmap-gaigg.vercel.app sollte jetzt Console clean liefern und Map rendern.
 
 **Lehre**: Vor „done"-Sign-off bei Karten-/Three-/Player-SDK-Apps mindestens ein DevTools-Console-Check auf der Production-URL fahren. Server-side curl + statisches HTML waren clean — der Bug saß genau im Initial-Hydration-Tick.
+
+---
+
+### Phase 11 — Begehbare 3D-Welt + Vision-Tab (2026-05-14) ✅
+
+**Mission**: Vom statischen Splat-Viewer im Detail-Panel zur echten, fußläufig erkundbaren 3D-Welt rund um die Villa Hofer am Pöstlingberg, plus KI-Konzept-Generierung im Detail-Panel.
+
+#### Neue Routen / Komponenten
+
+| Pfad | Rolle |
+|---|---|
+| `app/welt/[customerId]/page.tsx` | Server-Komponente, Next.js 16 `params: Promise<…>` |
+| `app/welt/[customerId]/loading.tsx` | Welt-Splash mit Spinner |
+| `app/welt/[customerId]/error.tsx` | Fehler-Boundary mit Reset + "Zurück zur Karte" |
+| `app/welt/[customerId]/opengraph-image.tsx` | Customer-spezifisches OG-PNG (Edge-runtime) |
+| `app/api/vision/generate/route.ts` | Node-runtime POST: gpt-image-1 + Rate-Limit + Cache |
+| `components/welt/welt-shell.tsx` | Client-Composition, useSyncExternalStore Patterns |
+| `components/welt/welt-canvas.tsx` | Three.js + 3d-tiles-renderer + Luma-Splats |
+| `components/welt/welt-controls/first-person-controls.ts` | PointerLock + WASD + Touch |
+| `components/welt/welt-hud.tsx` | Mini-Map, Kompass, Hotspot-Pills, FPS |
+| `components/welt/welt-unavailable.tsx` | Friendly Fallback ohne Key / WebGL |
+| `components/welt/onboarding-overlay.tsx` | 3-Schritt-Tutorial, localStorage-gated |
+| `components/welt/escape-overlay.tsx` | ESC = Pause-Menu |
+| `components/welt/ambient-audio.tsx` | Vogel-Wind-Audio mit Fade |
+| `components/welt/touch-joystick.tsx` | Virtueller Stick (Mobile) |
+| `components/detail-panel/welt-cta.tsx` | "Begehen"-Karte im Detail-Panel |
+| `components/detail-panel/vision-tab.tsx` | Vision-Generator mit Disclaimer |
+| `lib/welt/coordinates.ts` | WGS84-Ellipsoid Helpers (ECEF↔Geo, ENU-Basis) |
+| `lib/welt/tiles-config.ts` | Performance-Tier-Detection, Tier-Configs |
+| `lib/welt/hotspot-registry.ts` | Splat-Hotspots pro Customer-ID |
+| `lib/welt/motion.ts` | Velocity-Math + Friction-Integration |
+| `lib/welt/env-check.ts` | `hasGoogleTiles()`, `hasOpenAI()` |
+| `lib/env.ts` | Centralised env-Var-Access (server + client) |
+| `lib/openai/client.ts` | OpenAI SDK Wrapper (server-only) |
+| `lib/openai/prompts.ts` | Stil + Saison → Prompt Templates |
+| `lib/openai/rate-limit.ts` | In-Memory-Bucket (3/min/IP) |
+| `lib/openai/image-cache.ts` | Vercel-Blob + Memory-LRU Cache |
+| `components/map/select-customer-from-url.tsx` | `?customer=` → Sidebar-State-Restore |
+
+#### Neue Dependencies
+
+- `3d-tiles-renderer@0.4.24` (NASA-AMMOS, Apache-2.0)
+- `openai@6.37.0` (server-side image generation SDK)
+- `zod@4.4.3` (light validation)
+- `@vercel/blob@*` (production image cache)
+
+#### Acceptance-Status
+
+| Acceptance | Status |
+|---|---|
+| `/welt/c-001` lädt mit Customer-Header | ✅ |
+| `/welt/unknown` → 404-Fallback | ✅ |
+| Keine ENV-Keys → friendly Karte mit "Zurück zur Karte" | ✅ |
+| Begehen-CTA im DetailPanel, deep-link kopierbar | ✅ |
+| TypeScript build green | ✅ (`tsc --noEmit` 0 errors) |
+| ESLint green | ✅ (0 errors after react-hooks/set-state-in-effect refactor zu useSyncExternalStore) |
+| `.env.example` aktualisiert mit Setup-Kommentaren | ✅ |
+| Vitest 103/103 passing (vorher 55) | ✅ |
+| 7 neue Welt-/Vision-spezifische E2E grün | ✅ |
+| Production-Build sauber, Welt-Bundle als Chunk separat | ✅ |
+| README + ARCHITECTURE + 3 docs-Files geschrieben | ✅ |
+| JSON-LD `<Place>` Schema für SEO | ✅ |
+| Skip-Link "Zum Welt-Canvas springen" für Screen-Reader | ✅ |
+| OpenAI-Cost-Tracking dokumentiert | ✅ (siehe unten) |
+
+#### Test-Statistiken
+
+```
+Vitest: 11 test files | 103 tests passing
+  - welt-coordinates  : 12 tests, ECEF round-trip + ENU basis + spawn pose
+  - welt-motion       : 10 tests, friction-Integration + diagonal-clamp
+  - welt-hotspots     : 4 tests, registry-lookup + fallback
+  - welt-prompts      : 7 tests, type-guards + template-merge
+  - welt-rate-limit   : 4 tests, bucket + reset + isolation
+  - welt-tiles-config : 6 tests, tier-detection + monotonic configs
+  - welt-env          : 3 tests, all/partial/none keys
+  + bestand (format, geo, geojson, store) : 55 tests
+
+Playwright (Welt-spezifisch): 7 tests passing
+  - welt-route.spec.ts  : welt-route load, 404 fallback, opengraph-image
+  - welt-cta.spec.ts    : Begehen-CTA navigates, Vision-Tab visible+disclaimer
+  - vision-api.spec.ts  : API availability + invalid-payload guard
+```
+
+#### Cost-Tracking (Estimate)
+
+- **Google Map Tiles**: 1.000 Sessions/Monat Free-Tier (Enterprise). Bei 50 Demo-Aufrufen/Monat: $0. Quota-Cap in Console konfiguriert.
+- **OpenAI gpt-image-1**: ~$0.04 pro 1024×1024 hi-q-Image. Mit Cache-First-Strategy realistisch <$2/Monat im Demo-Betrieb. Hard-Cap `OPENAI_DAILY_BUDGET_USD=2.00` als UI-Hinweis konfiguriert; Rate-Limit 3/min/IP serverseitig.
+- **Vercel Blob**: Cache-Storage < 50 MB für die maximale Test-Matrix (25 Customers × 4 Stile × 4 Saisons = 400 Images × ~500 KB = 200 MB Maximum, im Demo realistisch <5 MB).
+
+#### Production-Build
+
+```
+Route (app)                            Size  First Load
+○ /                                   ...   ...
+ƒ /api/vision/generate                ...   (Node runtime)
+ƒ /welt/[customerId]                  ...   (dynamic, generateStaticParams matched)
+ƒ /welt/-/opengraph-image             ...   (Edge runtime)
+```
+
+Welt-Code wird via `next/dynamic({ ssr: false })` lazy-importiert; Main-Bundle-Größe für `/` bleibt unverändert.
+
+#### Phase 11 Lessons / Gotchas
+
+Siehe `gotchas.md` Einträge **#008** (Next 16 params Promise) und **#009** (`react-hooks/set-state-in-effect`).

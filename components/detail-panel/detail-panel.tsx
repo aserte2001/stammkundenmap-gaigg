@@ -4,8 +4,13 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { customerById, useAppStore } from "@/lib/store";
 import { CustomerHeader } from "./customer-header";
 import { ServiceTabs } from "./service-tabs";
+import { WeltCta } from "./welt-cta";
 
-export function DetailPanel() {
+type DetailPanelProps = {
+  visionAvailable?: boolean;
+};
+
+export function DetailPanel({ visionAvailable = true }: DetailPanelProps) {
   const selectedId = useAppStore((s) => s.selectedCustomerId);
   const select = useAppStore((s) => s.select);
   const customer = customerById(selectedId);
@@ -25,7 +30,8 @@ export function DetailPanel() {
         {customer ? (
           <>
             <CustomerHeader customer={customer} />
-            <ServiceTabs customer={customer} />
+            <WeltCta customer={customer} />
+            <ServiceTabs customer={customer} visionAvailable={visionAvailable} />
           </>
         ) : null}
       </SheetContent>

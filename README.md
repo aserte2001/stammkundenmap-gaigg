@@ -15,13 +15,38 @@ Eine premium-interaktive Karte der 25 Stammkunden der fiktiven „Gartengestaltu
 - **Selection Pulse** — animierter Ring um den ausgewählten Kunden via `setPaintProperty` rAF-Loop
 - **Sidebar** — virtualisierte Liste (`@tanstack/react-virtual`), Status/Typ/Gewerk-Filter, Viewport-only-Toggle
 - **Fuzzy Search** — Fuse.js auf Name, Adresse, Bezirk, Notizen, Gewerken
-- **Detail-Panel** — Foto + VIP-Krone, Status-Chip, Tabs (Übersicht, Aufträge, Notizen, 3D-View), Route-planen-Button
+- **Detail-Panel** — Foto + VIP-Krone, Status-Chip, Tabs (Übersicht, Aufträge, Notizen, 3D-View, **Vision**), Route-planen-Button, **Welt-begehen-CTA**
 - **3D-Splat-Viewer** — Iframe (Default) oder Three.js + `@lumaai/luma-web` (progressive enhancement)
+- **🆕 Begehbare 3D-Welt** — `/welt/[customerId]`: Google Photorealistic 3D Tiles + Luma-Splat-Hotspots + First-Person-WASD/Joystick (siehe Abschnitt unten)
+- **🆕 Vision-Tab** — KI-Konzept-Generierung mit OpenAI gpt-image-1 (4 Stile × 4 Saisons), mit Disclaimer, Cache, Rate-Limit
 - **Command-Palette** — `Cmd+K` mit Kunden, Stil-Switch, Filter-Shortcuts
 - **Tastaturnavigation** — `/`, `↑/↓`, `Enter`, `Esc`, `Cmd+K`, `?` (Shortcuts-Dialog)
 - **Responsive** — Desktop Glas-Sidebar + Floating-Header, Mobile Drawer + Bottom-Sheet
-- **Accessibility** — `prefers-reduced-motion` respektiert (CSS + Motion), aria-Labels, Tab-Trap im Panel
-- **PWA** — Manifest, generierte Icons, OG-Image, robots+sitemap
+- **Accessibility** — `prefers-reduced-motion` respektiert (CSS + Motion), aria-Labels, Tab-Trap im Panel, Skip-Link auf Welt-Route
+- **PWA** — Manifest, generierte Icons, OG-Image (Index + dynamisch pro Welt-Route), robots+sitemap
+
+## 🌍 Begehbare 3D-Welt — `/welt/[customerId]`
+
+Klick auf eine Kundennadel öffnet das Detail-Panel mit einem **„Welt begehen"-CTA**. Der CTA führt zu einer fullscreen 3D-Welt mit Google Photorealistic 3D Tiles rund um die echte Kundenadresse.
+
+- **First-Person-Navigation**: WASD + Maus (Desktop, Pointer-Lock), Joystick + Drag (Mobile)
+- **Splat-Hotspots**: Luma Gaussian-Splat-Captures als 3D-Object3D-Overlay, lazy-loaded ab 200 m Distanz
+- **HUD**: Mini-Map (Mapbox-Static, dreht mit Heading), Kompass, FPS-Counter, Hotspot-Pills, Attribution-Footer
+- **Onboarding**: 3-Schritte-Tutorial beim ersten Besuch, `localStorage`-gated
+- **Pause-Menü**: ESC öffnet ein Overlay mit Resume / Tutorial / Audio / Zurück
+- **Performance-Tier**: automatische Erkennung (high / balanced / low) basierend auf `hardwareConcurrency`, `deviceMemory`, Pointer-Type
+- **Fallback**: ohne Google-Key oder ohne WebGL → freundlicher Setup-Hinweis statt leerer Screen
+
+→ **Setup-Guide**: [docs/welt-setup.md](./docs/welt-setup.md) · **Steuerung**: [docs/welt-keyboard.md](./docs/welt-keyboard.md) · **Architektur**: [docs/welt-architecture.md](./docs/welt-architecture.md)
+
+### Vision-Tab
+
+Neuer Tab im Detail-Panel mit OpenAI `gpt-image-1`-basierter Konzeptgenerierung:
+
+- **4 Stile** (modern, mediterran, japanisch, naturalistisch) × **4 Saisons** = 16 Kombinationen
+- Server-Endpoint `/api/vision/generate` mit Zod-Validation, In-Memory-Rate-Limit (3/min/IP), Cache (Vercel Blob in Production, Memory in Dev)
+- **Disclaimer** „KI-Konzept — keine echte Garten-Vorschau" pro Image-Overlay
+- Cost-Tracking: ~$0.04 pro frischem Image, Cache-Hit kostenlos
 
 ## 🧱 Tech-Stack
 
@@ -30,7 +55,9 @@ Eine premium-interaktive Karte der 25 Stammkunden der fiktiven „Gartengestaltu
 | Framework        | **Next.js 16** App Router, Turbopack default, React 19.2                             |
 | Styling          | **Tailwind CSS v4** mit oklch-Tokens und `@theme inline`, **shadcn/ui** (Nova preset) |
 | Karte            | **Mapbox GL JS v3** (Globe + Standard style)                                         |
+| 3D-Tiles         | **3d-tiles-renderer 0.4** + GoogleCloudAuthPlugin (NASA-AMMOS)                       |
 | 3D Splat         | **Three.js 0.184** + **`@lumaai/luma-web` 0.2** (Iframe fallback)                    |
+| KI-Bilder        | **openai 6** SDK (gpt-image-1), Vercel Blob für Cache                                |
 | State            | **Zustand 5**                                                                        |
 | Search           | **Fuse.js 7**                                                                        |
 | Animation        | **Motion 12** (ehem. framer-motion), CSS keyframes                                   |
@@ -46,12 +73,16 @@ Eine premium-interaktive Karte der 25 Stammkunden der fiktiven „Gartengestaltu
 git clone https://github.com/aserte2001/stammkundenmap-gaigg.git
 cd stammkundenmap-gaigg
 cp .env.example .env.local
-# In .env.local einen gültigen Mapbox-Public-Token eintragen (pk.…)
+# In .env.local mindestens NEXT_PUBLIC_MAPBOX_TOKEN setzen.
+# Für die Welt-Route + Vision-Tab zusätzlich:
+#   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY (Browser, referrer-restricted)
+#   OPENAI_API_KEY (server-only, Sensitive)
+# Detail-Setup: docs/welt-setup.md
 npm install --legacy-peer-deps
 npm run dev
 ```
 
-→ `http://localhost:3000`
+→ `http://localhost:3000` (Karte)  ·  `http://localhost:3000/welt/c-001` (Welt)
 
 > **Hinweis zum `legacy-peer-deps`-Flag**: `@lumaai/luma-web@0.2.x` deklariert `@types/three@^0.157` als peerDependency, wir verwenden `@types/three@0.184` (kompatibel zur Runtime, nur Typen). Das `.npmrc` setzt `legacy-peer-deps=true` automatisch.
 

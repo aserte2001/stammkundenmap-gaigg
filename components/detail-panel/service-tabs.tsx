@@ -7,23 +7,26 @@ import { formatArea, formatCurrency, formatGardenType, formatService } from "@/l
 import type { Customer } from "@/lib/customers";
 import { Timeline } from "./timeline";
 import { SplatViewer } from "./splat-viewer";
+import { VisionTab } from "./vision-tab";
 
 const COMPARE_REF = 1_000;
 
 type Props = {
   customer: Customer;
+  visionAvailable?: boolean;
 };
 
-export function ServiceTabs({ customer }: Props) {
+export function ServiceTabs({ customer, visionAvailable = true }: Props) {
   return (
     <Tabs defaultValue="overview" className="flex flex-1 flex-col gap-3 overflow-hidden">
-      <TabsList className="grid w-full grid-cols-4">
+      <TabsList className="grid w-full grid-cols-5">
         <TabsTrigger value="overview">Übersicht</TabsTrigger>
         <TabsTrigger value="orders">Aufträge</TabsTrigger>
         <TabsTrigger value="notes">Notizen</TabsTrigger>
         <TabsTrigger value="splat" disabled={!customer.hasSplatDemo}>
           3D-View
         </TabsTrigger>
+        <TabsTrigger value="vision">Vision</TabsTrigger>
       </TabsList>
 
       <TabsContent value="overview" className="flex flex-1 flex-col gap-4 overflow-y-auto pr-1">
@@ -87,6 +90,10 @@ export function ServiceTabs({ customer }: Props) {
             <span className="text-xs">Premium-Feature für Stammkunden ab Goldstatus.</span>
           </div>
         )}
+      </TabsContent>
+
+      <TabsContent value="vision" className="flex flex-1 overflow-hidden">
+        <VisionTab customer={customer} available={visionAvailable} />
       </TabsContent>
     </Tabs>
   );
