@@ -129,7 +129,17 @@ export function WeltCanvas({
     sun.position.set(0.8, 1, 0.2);
     scene.add(sun);
 
-    const target = { lat: customer.coordinates[1], lng: customer.coordinates[0], alt: 0 };
+    // Approximate Linz/Pöstlingberg ground elevation above the WGS84 ellipsoid:
+    // Pöstlingberg ~487 m above mean sea level + ~46 m EGM geoid offset for
+    // this region ≈ 533 m. Used so the spawn sits above terrain instead of
+    // below it; the per-frame ground raycast then clamps the camera to the
+    // exact Google-Tiles surface as soon as tiles for the tile reach the LOD.
+    const REGIONAL_GROUND_ALT_M = 533;
+    const target = {
+      lat: customer.coordinates[1],
+      lng: customer.coordinates[0],
+      alt: REGIONAL_GROUND_ALT_M,
+    };
     const { position: spawnPos, lookAt } = spawnPoseSouthEast(target, 80, 32);
     camera.position.copy(spawnPos);
     camera.up.copy(latLngAltToECEF(target.lat, target.lng, 1).normalize());
@@ -224,6 +234,7 @@ export function WeltCanvas({
 
     const altitudeOverride: number | null = null;
     let groundY: number | null = null;
+    let initialGroundClampDone = false;
     const velocity = new THREE.Vector3();
 
     // Telemetry
@@ -313,6 +324,32 @@ export function WeltCanvas({
       const dt = Math.min(0.1, deltaMs / 1000);
 
       tilesRenderer.update();
+
+      // Initial ground clamp — runs once after the first tiles arrive, even
+      // while paused (e.g. during onboarding). Without this, opening the route
+      // on a non-coastal customer leaves the camera at the spawn ellipsoid
+      // altitude, which can be hundreds of metres below the real terrain.
+      if (!initialGroundClampDone && tilesLoadedCount > 0) {
+        const camPos = camera.position;
+        const geo = ecefToLatLngAlt(camPos);
+        const surfaceUpEnd = latLngAltToECEF(geo.lat, geo.lng, geo.alt + 1);
+        const up = surfaceUpEnd.sub(camPos).normalize();
+        const raycaster = new THREE.Raycaster(
+          camPos.clone().add(up.clone().multiplyScalar(2000)),
+          up.clone().multiplyScalar(-1),
+          0,
+          6000,
+        );
+        const hits = raycaster.intersectObject(tilesRenderer.group, true);
+        if (hits.length > 0) {
+          const surfacePos = hits[0].point.clone();
+          camPos.copy(surfacePos.add(up.clone().multiplyScalar(1.7)));
+          camera.up.copy(up);
+          // Re-aim at the customer once we're at human eye-height.
+          camera.lookAt(lookAt);
+          initialGroundClampDone = true;
+        }
+      }
 
       if (!paused) {
         if (flyAnim) {

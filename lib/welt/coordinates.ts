@@ -90,15 +90,14 @@ export function spawnPoseSouthEast(
   metersDistance: number,
   elevation: number,
 ): { position: THREE.Vector3; lookAt: THREE.Vector3 } {
-  // South-east = +east, -north
-  const offset = offsetGeo(
-    { ...target, alt: 0 },
-    {
-      east: metersDistance * Math.SQRT1_2,
-      north: -metersDistance * Math.SQRT1_2,
-      up: elevation,
-    },
-  );
+  // South-east = +east, -north. `elevation` is added on top of `target.alt`,
+  // so callers must pass the approximate ground elevation in target.alt for
+  // anywhere outside sea level — otherwise the spawn ends up below terrain.
+  const offset = offsetGeo(target, {
+    east: metersDistance * Math.SQRT1_2,
+    north: -metersDistance * Math.SQRT1_2,
+    up: elevation,
+  });
   const position = latLngAltToECEF(offset.lat, offset.lng, offset.alt);
   const lookAt = latLngAltToECEF(target.lat, target.lng, target.alt + 8);
   return { position, lookAt };
