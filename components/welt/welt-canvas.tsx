@@ -66,6 +66,15 @@ export function WeltCanvas({
   const containerRef = useRef<HTMLDivElement>(null);
   const controlsRef = useRef<FirstPersonControls | null>(null);
   const handleRef = useRef<WeltCanvasHandle | null>(null);
+  // Mirror the paused prop into a ref so the long-lived requestAnimationFrame
+  // closure (set up once per mount) can read the *current* value on every
+  // frame instead of the snapshot from when the effect first ran. Without
+  // this, the tick keeps treating paused as its mount-time value forever and
+  // WASD motion never starts after the onboarding overlay is dismissed.
+  const pausedRef = useRef(paused);
+  useEffect(() => {
+    pausedRef.current = paused;
+  }, [paused]);
   const isTouchDevice = useSyncExternalStore(
     subscribePointerMedia,
     getPointerMediaSnapshot,
@@ -351,7 +360,7 @@ export function WeltCanvas({
         }
       }
 
-      if (!paused) {
+      if (!pausedRef.current) {
         if (flyAnim) {
           const progress = Math.min(1, (now - flyAnim.startMs) / FLY_DURATION_MS);
           const eased = easeInOutCubic(progress);
