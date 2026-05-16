@@ -227,3 +227,64 @@ npm error peer three@"^0.180.0" from @sparkjsdev/spark@2.0.0
 **Fix**: Immer den `prepare_upload`-Pfad nehmen — also (a) `POST /marble/v1/media-assets:prepare_upload` für jede Datei, (b) PUT auf die signed URL, (c) `worlds:generate` mit `source: "media_asset", media_asset_id: …`. Das ist sowieso der Production-Pfad, weil unsere Capture-Photos direkt aus dem Browser kommen und nicht extern referenzierbar sind.
 
 **Prevention**: Im `MarbleClient` wird `uri`-Source gar nicht erst angeboten — nur `media_asset`. Für lokale Test-Skripte: `curl -L` herunterladen, dann uploaden, niemals `uri` an Marble durchreichen.
+
+## #013 — Vercel Hobby cappt Cron-Jobs auf 1×/Tag (silent deploy-reject)
+
+**Trigger**: `vercel.json` mit `"schedule": "*/1 * * * *"` deployed auf einen Hobby-Plan-Account.
+
+**Symptom**: Jeder GitHub-Push zu `main` triggerte den Webhook, aber **kein neuer Deployment** tauchte im Dashboard auf. Letzter Production-Deploy stand 23h auf einem alten Commit fest. Erst der manuelle `vercel deploy --prod` aus dem CLI lieferte die echte Fehlermeldung:
+
+```json
+{
+  "status": "error",
+  "reason": "deploy_failed",
+  "message": "Hobby accounts are limited to daily cron jobs. This cron expression (*/1 * * * *) would run more than once per day. Upgrade to the Pro plan to unlock all Cron Jobs features on Vercel."
+}
+```
+
+Der Webhook-getriggerte Build wurde sofort und unsichtbar verworfen, ohne den Deploy in der UI als „Failed" anzuzeigen — das verschleiert die Root-Cause komplett.
+
+**Fix** (commit `6991433`): Zwei-Schichten-Polling.
+
+1. `vercel.json` Cron auf `0 4 * * *` (Tages-Sweep nachts 04:00 UTC) — innerhalb Hobby-Limit.
+2. Neue `lib/marble/poll.ts:pollCustomerPendingOps(customerId)` extrahiert per-customer-Polling.
+3. `/api/capture/status` ruft `pollCustomerPendingOps` lazy auf wenn `status === "processing"`. Solange ein Browser pollt (Status-Endpoint alle 5–30 s), pollt der Server bei jedem Read auch Marble.
+4. `/api/capture/poll` (Cron) bleibt als Fallback-Sweep für Tabs, die mid-processing geschlossen wurden, aber nutzt jetzt dieselbe `pollCustomerPendingOps`-Funktion (DRY).
+
+**Prevention**:
+- **Vor jedem Cron-Schedule-Add**: Plan-Tier des Vercel-Accounts checken. Hobby = 1×/Tag (`0 H * * *`), Pro = beliebig.
+- **Wenn Auto-Deploy stumm bleibt**: Direkt `vercel deploy --prod` lokal versuchen — die CLI zeigt strukturierte Fehler, die der Webhook-Workflow verschluckt.
+- **Architektur-Pattern**: Polling immer client-getrieben designen wenn der Use-Case ein Browser-User mit offenem Tab ist. Server-Cron ist Fallback, nicht Primärquelle.
+
+## #014 — `AzimuthCompass` „kalibriert sich…" auf Geräten ohne Magnetometer
+
+**Trigger**: User ruft `/capture/c-XXX` auf einem Desktop-Browser (kein Hardware-Sensor) oder einem Android-Gerät ohne Magnetometer auf. Permission-State steht auf `granted` (kein iOS-Prompt nötig), `addEventListener("deviceorientation", …)` wird installiert — aber das Event feuert nie.
+
+**Symptom**: UI bleibt unbegrenzt auf „Kompass kalibriert sich…" (Spinner-Komponente in `azimuth-compass.tsx`), kein Fallback, kein Manual-Override sichtbar. User ist gestuck.
+
+Bonus-Sub-Problem: Auf Android Chrome liefert `deviceorientation` zwar Events, aber `event.alpha` ist relativ zur Page-Load-Orientierung, nicht zum magnetischen Norden — kein Kompass-Fallback per `(360 - alpha) % 360` möglich.
+
+**Fix** (commit `1942d0e`):
+
+1. **No-Signal-Timeout (6 s)**: `setTimeout` parallel zum `addEventListener`. Wenn nach 6 s kein Event eingetroffen ist (`received` Flag bleibt `false`), wird `onUnsupported()` getriggert → Parent schaltet auf `ManualAzimuthSelector`.
+2. **Android: `deviceorientationabsolute` first**: Feature-Detection via `"ondeviceorientationabsolute" in window`. Das absolute Event garantiert magnetisch-Norden-relative Alpha-Werte. Fallback auf normales `deviceorientation` für iOS/Firefox.
+3. **„Manuell ausrichten"-Button in jedem State**: Der Spinner-State, der Permission-Prompt-State und der aktive Compass-State haben jetzt alle einen Underline-Link, mit dem der User sofort zu Manual-Mode wechseln kann ohne den Timeout abzuwarten.
+4. **NaN/undefined-Filter**: Heading wird nur gesetzt wenn `Number.isFinite(compass)` — verhindert dass ein einziges defektes Event den Spinner stoppt aber dann garbage rendert.
+
+**Prevention**:
+- **Sensor-Komponenten brauchen IMMER**: (a) Permission-Handling, (b) No-Signal-Timeout mit Fallback, (c) sichtbarer Manual-Escape in jedem State, (d) Feature-Detection für `*absolute`-Event-Varianten auf Android.
+- **Test-Strategie für DeviceOrientationEvent**: Lässt sich kaum unit-testen (braucht echtes Hardware-Event). Stattdessen: E2E-Test, der den Timeout-Pfad explizit triggert (Mock-Event-Listener nicht aufrufen) und prüft, dass nach 6 s `useManualSelector === true` wird.
+- **UX-Regel**: Jeder unbestimmte Loading-State (Spinner ohne progress) braucht entweder einen sichtbaren Cancel-Button oder einen Auto-Timeout. „Forever spinner" ist ein Bug, kein State.
+
+## #015 — Vitest race zwischen Tests die denselben File-Cache schreiben
+
+**Trigger**: `lib/__tests__/splat-store.test.ts` und `lib/__tests__/marble-poll.test.ts` schreiben beide in `.cache/splat-mappings.json` (der Local-Fallback wenn `BLOB_READ_WRITE_TOKEN` fehlt). Vitest läuft files parallel by default → einer der beiden bleibt mit truncated/raced state zurück.
+
+**Symptom**: `summarisePendingOps flattens across customers` failed sporadisch mit „received array contains only c-002 entries", obwohl der Test isoliert (`vitest run lib/__tests__/splat-store.test.ts`) immer grün ist.
+
+**Fix** (vitest.config.ts): `fileParallelism: false` setzen. Dauert ~24 s länger pro Suite-Run (29s vs 5s), aber stabil.
+
+**Prevention**:
+- **Wenn ein Test einen module-scoped Cache oder einen geteilten Filesystem-Pfad benutzt**: entweder mocken oder `fileParallelism: false`.
+- **Bessere Langzeit-Lösung** (nicht jetzt nötig): `splat-store.ts` würde eine env-Variable `SPLAT_STORE_LOCAL_CACHE_PATH` lesen, die per Test-File auf einen unique tmp-Pfad gesetzt wird. Dann könnte parallelism wieder an.
+- **Diagnostik-Heuristik**: „Test grün isoliert, rot in Suite" → fast immer ein Race auf shared module state oder shared FS. Erst clearAllMappings/beforeEach checken, dann fileParallelism ausschließen.

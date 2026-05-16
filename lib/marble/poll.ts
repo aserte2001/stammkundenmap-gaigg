@@ -8,7 +8,7 @@
  *
  * Server-only.
  */
-import { getMarbleClient } from "@/lib/marble/client";
+import { getMarbleClient, type MarbleClient } from "@/lib/marble/client";
 import {
   addWorldToCustomer,
   getMappingForCustomer,
@@ -22,19 +22,25 @@ export type PollResult = { checked: number; ready: number; failed: number };
  * Walks every pending operation for a single customer, calls
  * `GET /operations/{id}`, and translates terminal results into the store.
  * Safe to call repeatedly; no-op when nothing is pending.
+ *
+ * The Marble client is injectable for tests — production callers omit it
+ * and get the cached singleton.
  */
-export async function pollCustomerPendingOps(customerId: string): Promise<PollResult> {
+export async function pollCustomerPendingOps(
+  customerId: string,
+  client?: Pick<MarbleClient, "getOperation">,
+): Promise<PollResult> {
   const mapping = await getMappingForCustomer(customerId);
   const pending = mapping.pendingOperationIds;
   if (pending.length === 0) return { checked: 0, ready: 0, failed: 0 };
 
-  const client = getMarbleClient();
+  const marble = client ?? getMarbleClient();
   let ready = 0;
   let failed = 0;
 
   for (const operationId of pending) {
     try {
-      const op = await client.getOperation(operationId);
+      const op = await marble.getOperation(operationId);
       if (!op.done) continue;
       if (op.error) {
         await markFailed(

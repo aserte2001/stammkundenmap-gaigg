@@ -16,6 +16,9 @@ export default defineConfig({
     css: true,
     include: ["lib/**/*.test.{ts,tsx}", "components/**/*.test.{ts,tsx}"],
     exclude: ["node_modules/**", "e2e/**", ".next/**"],
+    // splat-store + marble-poll tests both write to .cache/splat-mappings.json
+    // so files cannot run in parallel without a per-file cache override.
+    fileParallelism: false,
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "json-summary", "json"],
