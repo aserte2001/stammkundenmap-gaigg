@@ -42,6 +42,29 @@ type Phase =
   | "done"
   | "error";
 
+async function putWithRetry(
+  url: string,
+  method: string,
+  headers: Record<string, string>,
+  body: Blob,
+  maxAttempts = 3,
+): Promise<Response> {
+  let lastErr: unknown = null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const resp = await fetch(url, { method: method || "PUT", headers, body });
+      if (resp.ok || (resp.status >= 400 && resp.status < 500)) return resp;
+      lastErr = new Error(`HTTP ${resp.status}`);
+    } catch (err) {
+      lastErr = err;
+    }
+    if (attempt < maxAttempts) {
+      await new Promise((r) => setTimeout(r, 500 * attempt));
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error("Upload failed");
+}
+
 const SIZE_OPTIONS: Array<{ value: GardenSize; label: string; description: string }> = [
   {
     value: "small",
@@ -164,32 +187,92 @@ export function GuidedCapture({ customerId, customerName, customerAddress }: Pro
     setPhase("uploading");
     setErrorMessage(null);
     try {
-      setUploadProgress({ stage: "compressing", label: "Komprimiere Fotos…" });
       const fresh = await loadCaptures(customerId);
-      setUploadProgress({ stage: "submitting", label: "Sende an Marble…" });
-      const fd = new FormData();
-      const meta = {
-        customerId,
-        size,
-        mode,
-        reconstruct: sequence.reconstruct,
-        slots: fresh.map((c) => ({
+
+      // Step 1: get signed upload URLs from Marble (via our server, no file bytes yet).
+      setUploadProgress({ stage: "uploading", label: "Bereite Upload vor…" });
+      const prepareResp = await fetch("/api/capture/prepare", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerId,
+          files: fresh.map((c) => ({
+            slot: c.slot,
+            extension: "jpg",
+            azimuth: c.azimuth,
+          })),
+        }),
+      });
+      if (!prepareResp.ok) {
+        const text = await prepareResp.text();
+        throw new Error(text || `Vorbereitung fehlgeschlagen (HTTP ${prepareResp.status})`);
+      }
+      const { uploads } = (await prepareResp.json()) as {
+        uploads: Array<{
+          slot: number;
+          azimuth: number;
+          mediaAssetId: string;
+          uploadUrl: string;
+          uploadMethod: string;
+          requiredHeaders: Record<string, string>;
+        }>;
+      };
+
+      // Step 2: upload each photo directly to Marble's signed URL (browser → GCS).
+      // This bypasses Vercel's 4.5 MB function-payload limit entirely; 8 × ~2 MB
+      // photos used to fail with FUNCTION_PAYLOAD_TOO_LARGE.
+      let completed = 0;
+      const totalCount = fresh.length;
+      setUploadProgress({
+        stage: "uploading",
+        label: `Lade Fotos hoch… (0/${totalCount})`,
+      });
+      const slotByNum = new Map(fresh.map((c) => [c.slot, c]));
+      await Promise.all(
+        uploads.map(async (u) => {
+          const rec = slotByNum.get(u.slot);
+          if (!rec) throw new Error(`No capture for slot ${u.slot}`);
+          const putResp = await putWithRetry(u.uploadUrl, u.uploadMethod, u.requiredHeaders, rec.blob);
+          if (!putResp.ok) {
+            throw new Error(
+              `Upload für Slot ${u.slot + 1} fehlgeschlagen (HTTP ${putResp.status}).`,
+            );
+          }
+          completed += 1;
+          setUploadProgress({
+            stage: "uploading",
+            label: `Lade Fotos hoch… (${completed}/${totalCount})`,
+          });
+        }),
+      );
+
+      // Step 3: trigger world generation with the media-asset IDs (small JSON payload).
+      setUploadProgress({ stage: "submitting", label: "Starte 3D-Generierung…" });
+      const slotsWithIds = fresh.map((c) => {
+        const u = uploads.find((x) => x.slot === c.slot);
+        if (!u) throw new Error(`No mediaAssetId for slot ${c.slot}`);
+        return {
           slot: c.slot,
           azimuth: c.azimuth,
           elevation: c.elevation,
           position: c.position,
-        })),
-      };
-      fd.append("meta", JSON.stringify(meta));
-      for (const c of fresh) {
-        fd.append("photos", c.blob, `slot-${c.slot}.jpg`);
-      }
+          mediaAssetId: u.mediaAssetId,
+        };
+      });
+
       const resp = await fetch("/api/capture/start", {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           "x-stammkunden-customer-id": customerId,
         },
-        body: fd,
+        body: JSON.stringify({
+          customerId,
+          size,
+          mode,
+          reconstruct: sequence.reconstruct,
+          slots: slotsWithIds,
+        }),
       });
       if (!resp.ok) {
         const text = await resp.text();

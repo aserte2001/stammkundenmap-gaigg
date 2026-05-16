@@ -320,3 +320,53 @@ Quelle: `docs.worldlabs.ai/marble/export/specs` — *„Default world labs world
 - **Vor jeder neuen Splat-Quelle (Marble, Luma, Polycam, Scaniverse, …)**: Coordinate-System der Quelle dokumentieren. Default-Annahme „Y-up wie Three.js" ist falsch für mindestens Marble, ROS-Bags, OpenCV-Pipelines und Photogrammetrie aus Photogrammetry-DCC-Tools mit Z-up.
 - **Splat-Viewer-Checklist**: (a) Coordinate-Flip dokumentiert, (b) Kamera-Spawn ist visuell verifiziert innerhalb der Welt, (c) Controls passen zum Use-Case (orbit-around-object vs walk-inside-world), (d) Fly-mode wenn kein Floor existiert.
 - **Klassischer Smell**: Wenn man im Splat-Viewer ein 3D-Modell von außen sieht aber das Modell „eigentlich begehbar" sein soll → fast garantiert ein Spawn-außerhalb-bounds-Problem oder das falsche Control-Schema (OrbitControls statt FirstPerson).
+
+## #017 — Vercel Serverless Function `FUNCTION_PAYLOAD_TOO_LARGE` bei 8-Foto-Upload
+
+**Trigger**: User uploaded 8 Outdoor-Fotos (~2 MB JPEG each, JPG q=0.85 / 2048 px) als FormData an `/api/capture/start`. Total payload ~16 MB.
+
+**Symptom**: Vercel Edge response:
+```
+Etwas ist schiefgelaufen
+Request Entity Too Large
+FUNCTION_PAYLOAD_TOO_LARGE fra1::xcndk-1778951197750-17188761438f
+```
+Lokal mit `next dev` reproduzierbar nicht — der Limit ist eine Vercel-Edge-Property.
+
+**Root-Cause**: Vercel Serverless Functions haben ein **hartes 4.5-MB-Limit auf den Request-Body** (egal ob `nodejs` oder `edge` runtime, egal welcher Plan). Das Limit greift _vor_ deinem Handler in der Vercel-Edge — `maxDuration` o.Ä. helfen nichts.
+
+Quelle: <https://vercel.com/docs/functions/limitations#request-body-size>
+
+**Workaround**, der NICHT gewählt wurde:
+- Aggressivere Compression (z.B. 1280 px / q=0.6) → reduziert die Qualität, sprengt das Limit aber bei 8 Bildern immer noch knapp.
+- Vercel Pro Plan → kein Unlimit, nur leicht höher.
+
+**Fix** (commit folgt — Two-Step Direct-Upload):
+
+1. **Neuer Endpoint** `POST /api/capture/prepare`: nimmt JSON `{customerId, files:[{slot, extension, azimuth}…]}`. Ruft Marble `prepareUpload` N× parallel auf, gibt `{uploads: [{slot, mediaAssetId, uploadUrl, uploadMethod, requiredHeaders}…]}` zurück. Cost-Cap-Pre-Check inkl.
+2. **Browser** PUTet jedes Foto direkt zu `uploadUrl` (Google-Cloud-Storage signed URL). CORS ist von World-Labs konfiguriert (`Access-Control-Allow-Origin: https://…vercel.app`, verifiziert via OPTIONS-Probe). PUTs laufen parallel mit kleinem Retry-Helper.
+3. **Modifizierter Endpoint** `POST /api/capture/start` akzeptiert jetzt JSON mit `{customerId, size, mode, reconstruct, slots:[{slot, azimuth, elevation, position, mediaAssetId}…]}` statt FormData. Triggert nur noch `generateWorld` mit den vorher hochgeladenen `mediaAssetId`s. Payload < 2 KB.
+
+**Daten-Flow neu**:
+```
+Browser ──prepare──► Vercel /api/capture/prepare
+                       └──prepareUpload×N──► Marble
+                       ◄──{mediaAssetId,uploadUrl}×N──
+Browser ──PUT×N (parallel)──► storage.googleapis.com (signed URLs)
+Browser ──start──► Vercel /api/capture/start
+                       └──worlds:generate──► Marble
+                       ◄──{operationId}──
+```
+
+Vercel sieht damit nie mehr als ~5 KB JSON. Limit ist permanent eliminiert; Marble-File-Limit ist 100 MB/Bild.
+
+**Prevention**:
+
+- **Niemals File-Uploads durch eine Vercel-Function pipen**, wenn der Cloud-Provider signed Upload-URLs anbietet (Marble, S3, Vercel-Blob, Cloudflare-R2 — alle haben dieses Pattern). Browser → Storage direkt ist immer der bessere Pfad, weil:
+  - Kein 4.5-MB-Limit
+  - Keine doppelte Bandwidth (Egress = teuerste Vercel-Resource)
+  - Parallel-Uploads ohne Function-Concurrency-Constraints
+  - Längere Operations möglich (Vercel-Function-Timeout fällt weg)
+- **CORS vorher prüfen**: Vor dem Switch zu Direct-Upload mit `curl -X OPTIONS -H "Origin: …" -H "Access-Control-Request-Method: PUT"` gegen die signed URL ihres Providers. Wenn `Access-Control-Allow-Origin` matched → grün.
+- **Rate-Limit auf den teuren Endpoint legen** (nicht auf den Prepare-Endpoint): `/api/capture/start` triggert die ~1,18 €-Marble-Generation; das ist der echte Cost-Vector. `/api/capture/prepare` ist signed-URL-Generation, fast gratis — der Customer-Whitelist-Check reicht dort.
+- **Test-Script idea (TBD)**: Ein E2E-Test der 8×3-MB-Dummy-Fotos an `/prepare` schickt und einen einzelnen PUT verifiziert (ohne Marble-Generation). So wird das Limit-Regression beim nächsten Refactor entdeckt.

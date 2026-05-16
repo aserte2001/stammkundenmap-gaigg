@@ -11,7 +11,7 @@ import {
 } from "@/lib/customers/splat-store";
 
 export const runtime = "nodejs";
-export const maxDuration = 300;
+export const maxDuration = 60;
 
 const MAX_PHOTOS = 8;
 const MIN_PHOTOS = 4;
@@ -21,9 +21,10 @@ type SlotMeta = {
   azimuth: number;
   elevation: number;
   position: string;
+  mediaAssetId: string;
 };
 
-type CaptureMeta = {
+type CaptureRequest = {
   customerId: string;
   size: "small" | "medium" | "large";
   mode: "phone" | "upload";
@@ -32,61 +33,34 @@ type CaptureMeta = {
 };
 
 export async function POST(req: Request) {
-  let parsedMeta: CaptureMeta | null = null;
+  let parsed: CaptureRequest | null = null;
   try {
-    const formData = await req.formData();
-    const metaRaw = formData.get("meta");
-    if (typeof metaRaw !== "string") {
-      return badRequest("Missing meta field.");
-    }
-    parsedMeta = JSON.parse(metaRaw) as CaptureMeta;
-    const meta = parsedMeta;
+    parsed = (await req.json()) as CaptureRequest;
+    const meta = parsed;
 
     const customer = customersById[meta.customerId];
     if (!customer) return badRequest("Unknown customer.");
 
-    const photoEntries = formData.getAll("photos");
-    if (photoEntries.length < MIN_PHOTOS || photoEntries.length > MAX_PHOTOS) {
+    if (
+      !Array.isArray(meta.slots) ||
+      meta.slots.length < MIN_PHOTOS ||
+      meta.slots.length > MAX_PHOTOS
+    ) {
       return badRequest(
-        `Need ${MIN_PHOTOS}–${MAX_PHOTOS} photos, got ${photoEntries.length}.`,
+        `Need ${MIN_PHOTOS}-${MAX_PHOTOS} slots, got ${meta.slots?.length ?? 0}.`,
       );
     }
-    if (meta.slots.length !== photoEntries.length) {
-      return badRequest("Slot metadata count does not match photo count.");
+
+    for (const s of meta.slots) {
+      if (typeof s.mediaAssetId !== "string" || s.mediaAssetId.length === 0) {
+        return badRequest(`Slot ${s.slot} is missing mediaAssetId.`);
+      }
     }
 
     await assertWithinCap();
 
     const client = getMarbleClient();
 
-    // 1. Upload every photo to Marble's signed-URL storage in parallel.
-    const uploaded = await Promise.all(
-      photoEntries.map(async (entry, index) => {
-        if (!(entry instanceof File)) {
-          throw new Error(`Photo at index ${index} is not a File.`);
-        }
-        const slotMeta = meta.slots[index];
-        const file = entry;
-        const ext = file.name.includes(".") ? file.name.split(".").pop()! : "jpg";
-        const prepared = await client.prepareUpload({
-          file_name: `${meta.customerId}-slot-${slotMeta.slot}.${ext}`,
-          extension: ext,
-          kind: "image",
-          metadata: { customer_id: meta.customerId, slot: slotMeta.slot, azimuth: slotMeta.azimuth },
-        });
-        await client.uploadBytes(
-          prepared.upload_info.upload_url,
-          prepared.upload_info.required_headers ?? {},
-          await file.arrayBuffer(),
-        );
-        return {
-          azimuth: slotMeta.azimuth,
-          mediaAssetId: prepared.media_asset.media_asset_id,
-        };
-      }),
-    );
-
-    // 2. Trigger world generation.
     const model =
       process.env.MARBLE_MODEL_OVERRIDE === "draft"
         ? ("marble-1.0-draft" as const)
@@ -100,9 +74,9 @@ export async function POST(req: Request) {
       tags: ["gartengestaltung-gaigg", customer.id, customer.gardenType],
       world_prompt: {
         type: "multi-image",
-        multi_image_prompt: uploaded.map((u) => ({
-          azimuth: u.azimuth,
-          content: { source: "media_asset" as const, media_asset_id: u.mediaAssetId },
+        multi_image_prompt: meta.slots.map((s) => ({
+          azimuth: s.azimuth,
+          content: { source: "media_asset" as const, media_asset_id: s.mediaAssetId },
         })),
         reconstruct_images: meta.reconstruct,
         text_prompt: buildPrompt(customer),
@@ -119,9 +93,9 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     console.error("/api/capture/start failed", err);
-    if (parsedMeta?.customerId) {
+    if (parsed?.customerId) {
       await markFailed(
-        parsedMeta.customerId,
+        parsed.customerId,
         "submission",
         err instanceof Error ? err.message : "Unknown error",
       ).catch(() => {});
