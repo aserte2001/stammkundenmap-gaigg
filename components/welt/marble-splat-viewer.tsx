@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { SparkRenderer, SplatMesh } from "@sparkjsdev/spark";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, MousePointerClick, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FirstPersonControls } from "./welt-controls/first-person-controls";
+import { TouchJoystick } from "./touch-joystick";
 
 export type SplatTier = "100k" | "500k" | "full";
 
@@ -19,15 +20,24 @@ type Props = {
   splatUrls: SplatUrls;
   /** Optional initial label shown on the loading overlay. */
   label?: string;
-  /** Idle seconds after which the camera starts a slow auto-orbit. */
-  idleAutoRotateSeconds?: number;
 };
 
-export function MarbleSplatViewer({ splatUrls, label, idleAutoRotateSeconds = 5 }: Props) {
+// World Labs Marble exports SPZ files in the OpenCV coordinate system
+// (+X right, +Y down, +Z forward). Three.js / WebGL is OpenGL-ish
+// (+X right, +Y up, -Z forward). The conversion is a 180° rotation around
+// the X axis: Y -> -Y, Z -> -Z. Without this every Marble world renders
+// upside down. Source: docs.worldlabs.ai/marble/export/specs
+const OPENCV_TO_OPENGL_X_ROT = Math.PI;
+
+const EYE_HEIGHT = 1.6;       // metres above world origin for the spawn pose
+const WALK_SPEED = 2.4;       // m/s base — sprint multiplies by 2.4
+const FLY_SPEED = 4.8;        // m/s base when flyMode is enabled
+const SPRINT_MULTIPLIER = 2.4;
+
+export function MarbleSplatViewer({ splatUrls, label }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const controlsRef = useRef<FirstPersonControls | null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
-  // Initialised lazily inside the effect (Date.now is impure during render).
-  const lastInteractionRef = useRef<number>(0);
   const [tier, setTier] = useState<SplatTier>(() =>
     typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches
       ? "100k"
@@ -35,6 +45,13 @@ export function MarbleSplatViewer({ splatUrls, label, idleAutoRotateSeconds = 5 
   );
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [locked, setLocked] = useState(false);
+  // Touch detection via lazy initializer — avoids `react-hooks/set-state-
+  // in-effect` and the SSR hydration mismatch we'd get from reading
+  // `matchMedia` during render on the server (always false there).
+  const [isTouch] = useState<boolean>(() =>
+    typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches === true,
+  );
 
   const activeUrl = pickUrl(splatUrls, tier);
 
@@ -43,7 +60,6 @@ export function MarbleSplatViewer({ splatUrls, label, idleAutoRotateSeconds = 5 
     const container = containerRef.current;
     let disposed = false;
     let raf = 0;
-    lastInteractionRef.current = Date.now();
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -52,19 +68,13 @@ export function MarbleSplatViewer({ splatUrls, label, idleAutoRotateSeconds = 5 
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
-      55,
+      70,
       container.clientWidth / container.clientHeight,
       0.05,
-      200,
+      500,
     );
-    camera.position.set(0, 1.6, 4);
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
-    controls.minDistance = 0.5;
-    controls.maxDistance = 50;
-    controls.target.set(0, 1, 0);
+    // Initial spawn before splat bounds are known: at origin, eye height.
+    camera.position.set(0, EYE_HEIGHT, 0);
 
     const sparkRenderer = new SparkRenderer({ renderer });
     scene.add(sparkRenderer);
@@ -83,7 +93,10 @@ export function MarbleSplatViewer({ splatUrls, label, idleAutoRotateSeconds = 5 
       onLoad: () => {
         if (disposed) return;
         setProgress(100);
-        // Re-target camera roughly at the splat centroid.
+        // Re-centre the camera now that we know the world bounds, AFTER the
+        // OpenCV→OpenGL rotation is applied (which we did before adding the
+        // mesh to the scene — see below). Spawn inside the world at eye
+        // height, looking toward -Z (Three.js default forward).
         try {
           const box = new THREE.Box3().setFromObject(splatMesh);
           if (box.isEmpty()) return;
@@ -91,18 +104,41 @@ export function MarbleSplatViewer({ splatUrls, label, idleAutoRotateSeconds = 5 
           box.getCenter(center);
           const size = new THREE.Vector3();
           box.getSize(size);
-          const radius = size.length() / 2;
-          controls.target.copy(center);
-          camera.position.copy(center).add(new THREE.Vector3(0, 0, radius * 1.6));
-          camera.near = Math.max(0.05, radius * 0.005);
-          camera.far = radius * 200;
+          // Place the eye at the horizontal world centre, vertically near
+          // the top of the bounding volume (Marble worlds tend to capture
+          // ground around y≈0, so picking max.y - eyeHeight puts us above
+          // the floor instead of underneath the geometry).
+          const eyeY = Math.max(box.max.y - EYE_HEIGHT, center.y);
+          camera.position.set(center.x, eyeY, center.z);
+          camera.near = Math.max(0.05, size.length() * 0.0005);
+          camera.far = Math.max(500, size.length() * 4);
           camera.updateProjectionMatrix();
         } catch (err) {
           console.warn("centring splat failed", err);
         }
       },
     });
+    // Apply OpenCV→OpenGL fix before the mesh is added. The bounds
+    // computed in onLoad will reflect this rotation automatically.
+    splatMesh.rotation.x = OPENCV_TO_OPENGL_X_ROT;
     scene.add(splatMesh);
+
+    // First-person controls. For Marble worlds the up-vector is the
+    // standard Y axis (after rotation), so getUp() returns a constant.
+    const worldUp = new THREE.Vector3(0, 1, 0);
+    const controls = new FirstPersonControls({
+      domElement: renderer.domElement,
+      camera,
+      getUp: () => worldUp,
+      onLockChange: (next) => setLocked(next),
+    });
+    // Fly-mode by default: Marble worlds rarely contain a watertight
+    // floor mesh that the avatar could rest on, so locking Y to a ground
+    // raycast would leave the camera dangling in the air at random
+    // heights. Letting the user fly freely (Space / Q-E for vertical)
+    // is the right default for a fly-through demo.
+    controls.flyMode = true;
+    controlsRef.current = controls;
 
     const onResize = () => {
       const w = container.clientWidth;
@@ -115,34 +151,59 @@ export function MarbleSplatViewer({ splatUrls, label, idleAutoRotateSeconds = 5 
       typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
     resizeObserver?.observe(container);
 
-    const onInteract = () => {
-      lastInteractionRef.current = Date.now();
-    };
-    renderer.domElement.addEventListener("pointerdown", onInteract);
-    renderer.domElement.addEventListener("wheel", onInteract);
+    let lastFrameMs = performance.now();
 
-    const animate = () => {
+    const tick = () => {
       if (disposed) return;
-      raf = requestAnimationFrame(animate);
-      const idleMs = Date.now() - lastInteractionRef.current;
-      if (idleMs > idleAutoRotateSeconds * 1000) {
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.4;
-      } else {
-        controls.autoRotate = false;
+      raf = requestAnimationFrame(tick);
+      const now = performance.now();
+      const dt = Math.min(0.066, (now - lastFrameMs) / 1000);
+      lastFrameMs = now;
+
+      // Apply yaw / pitch from controls (computed in local frame).
+      const up = worldUp;
+      const yawQuat = new THREE.Quaternion().setFromAxisAngle(up, controls.yaw);
+      // The reference "north" we yaw around: -Z rotated to be perpendicular to up.
+      const referenceForward = new THREE.Vector3(0, 0, -1);
+      const forward = referenceForward.clone().applyQuaternion(yawQuat).normalize();
+      const right = new THREE.Vector3().crossVectors(forward, up).normalize();
+      // Pitch tilts the forward vector around the right axis.
+      const pitchQuat = new THREE.Quaternion().setFromAxisAngle(right, controls.pitch);
+      const lookDir = forward.clone().applyQuaternion(pitchQuat).normalize();
+
+      // Build a quaternion that takes the camera's default -Z to lookDir
+      // (with the right vector keeping the roll stable).
+      const camQuat = new THREE.Quaternion();
+      const m = new THREE.Matrix4().lookAt(
+        new THREE.Vector3(0, 0, 0),
+        lookDir.clone().multiplyScalar(-1),
+        up,
+      );
+      camQuat.setFromRotationMatrix(m);
+      camera.quaternion.copy(camQuat);
+
+      // Velocity integration.
+      const speed =
+        (controls.flyMode ? FLY_SPEED : WALK_SPEED) *
+        (controls.input.sprint ? SPRINT_MULTIPLIER : 1);
+      const move = new THREE.Vector3();
+      move.addScaledVector(forward, controls.input.forward * speed * dt);
+      move.addScaledVector(right, controls.input.strafe * speed * dt);
+      if (controls.flyMode) {
+        move.addScaledVector(up, controls.input.vertical * speed * dt);
       }
-      controls.update();
+      camera.position.add(move);
+
       renderer.render(scene, camera);
     };
-    animate();
+    tick();
 
     cleanupRef.current = () => {
       disposed = true;
       cancelAnimationFrame(raf);
       resizeObserver?.disconnect();
-      renderer.domElement.removeEventListener("pointerdown", onInteract);
-      renderer.domElement.removeEventListener("wheel", onInteract);
       controls.dispose();
+      controlsRef.current = null;
       try {
         scene.remove(splatMesh);
         (splatMesh as unknown as { dispose?: () => void }).dispose?.();
@@ -165,7 +226,11 @@ export function MarbleSplatViewer({ splatUrls, label, idleAutoRotateSeconds = 5 
       cleanupRef.current?.();
       cleanupRef.current = null;
     };
-  }, [activeUrl, idleAutoRotateSeconds]);
+  }, [activeUrl]);
+
+  const handleJoystick = (vec: { x: number; y: number }) => {
+    controlsRef.current?.setJoystick(vec);
+  };
 
   if (!activeUrl) {
     return (
@@ -175,9 +240,12 @@ export function MarbleSplatViewer({ splatUrls, label, idleAutoRotateSeconds = 5 
     );
   }
 
+  const showClickToStart = !isTouch && !locked && progress >= 100 && !error;
+
   return (
     <div className="bg-background relative h-full w-full overflow-hidden">
       <div ref={containerRef} className="absolute inset-0" data-testid="marble-splat-canvas" />
+
       {progress < 100 && !error && (
         <div className="bg-background/80 absolute inset-0 flex flex-col items-center justify-center gap-3 backdrop-blur">
           <Sparkles className="text-primary h-10 w-10" aria-hidden />
@@ -191,11 +259,26 @@ export function MarbleSplatViewer({ splatUrls, label, idleAutoRotateSeconds = 5 
           <div className="text-muted-foreground text-xs">{progress}%</div>
         </div>
       )}
+
+      {showClickToStart && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="bg-card/85 text-foreground border-border flex flex-col items-center gap-2 rounded-lg border px-5 py-4 text-center text-sm backdrop-blur">
+            <MousePointerClick className="text-primary h-6 w-6" aria-hidden />
+            <p className="font-medium">In die Welt klicken zum Begehen</p>
+            <p className="text-muted-foreground text-xs">
+              W A S D bewegen · Maus schauen · Shift sprintet · Q / E hoch / runter · ESC verlässt
+            </p>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div className="bg-background/90 text-destructive absolute inset-0 flex items-center justify-center p-6 text-center text-sm">
           {error}
         </div>
       )}
+
+      {/* Tier picker — bottom right. */}
       <div className="bg-card/80 pointer-events-auto absolute right-3 bottom-3 inline-flex items-center gap-1 rounded-full p-1 backdrop-blur">
         <TierButton current={tier} value="100k" onSelect={setTier}>
           Mobile
@@ -207,6 +290,13 @@ export function MarbleSplatViewer({ splatUrls, label, idleAutoRotateSeconds = 5 
           HQ
         </TierButton>
       </div>
+
+      {/* Touch joystick for mobile. */}
+      {isTouch && progress >= 100 && !error && (
+        <div className="pointer-events-auto absolute bottom-6 left-6">
+          <TouchJoystick onChange={handleJoystick} />
+        </div>
+      )}
     </div>
   );
 }
@@ -246,5 +336,5 @@ function pickUrl(urls: SplatUrls, tier: SplatTier): string | null {
   return urls.splatUrl ?? urls.splatUrl500k ?? urls.splatUrl100k;
 }
 
-// Fallback for environments where Loader2 is removed by tree-shaking.
+// Tree-shaking guard for icons that may be conditionally used.
 void Loader2;

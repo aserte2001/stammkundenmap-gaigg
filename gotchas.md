@@ -288,3 +288,33 @@ Bonus-Sub-Problem: Auf Android Chrome liefert `deviceorientation` zwar Events, a
 - **Wenn ein Test einen module-scoped Cache oder einen geteilten Filesystem-Pfad benutzt**: entweder mocken oder `fileParallelism: false`.
 - **Bessere Langzeit-Lösung** (nicht jetzt nötig): `splat-store.ts` würde eine env-Variable `SPLAT_STORE_LOCAL_CACHE_PATH` lesen, die per Test-File auf einen unique tmp-Pfad gesetzt wird. Dann könnte parallelism wieder an.
 - **Diagnostik-Heuristik**: „Test grün isoliert, rot in Suite" → fast immer ein Race auf shared module state oder shared FS. Erst clearAllMappings/beforeEach checken, dann fileParallelism ausschließen.
+
+## #016 — Marble-SPZ-Welten rendern auf dem Kopf (OpenCV vs OpenGL Koordinaten)
+
+**Trigger**: Marble exportiert seine SPZ-Splats im **OpenCV-Koordinatensystem** (`+X` rechts, `+Y` **unten**, `+Z` **vorne**). Three.js / Spark erwarten OpenGL-Konvention (`+X` rechts, `+Y` **oben**, `−Z` vorne). Ohne Konvertierung steht jede generierte Welt im SplatViewer kopf, und der Spawn liegt am `boundingBox.center + (0, 0, radius * 1.6)` — also **außerhalb** der eigentlichen Welt — was bei OrbitControls noch akzeptabel ist, bei einer „Begehung" aber komplett falsch.
+
+Quelle: `docs.worldlabs.ai/marble/export/specs` — *„Default world labs worlds are in OpenCV coordinate system (+x right, +y down, +z forward). To correct for OpenGL software, scale Y and Z axes by −1."*
+
+**Symptom**:
+
+- Bild steht **auf dem Kopf** im `/welt/[customerId]`-Viewer (Himmel unten, Boden oben).
+- Kamera spawnt **außerhalb der Welt**, sodass der User auf das Splat von außen schaut statt drin zu stehen.
+- Drücken einer Bewegungstaste passierte nichts, weil `OrbitControls` keine WASD-Bewegung kennt — sie orbiten nur um `target`.
+
+**Fix** (commit folgt nach diesem Eintrag):
+
+1. **Koordinaten-Flip**: `splatMesh.rotation.x = Math.PI` direkt nach der `new SplatMesh()`-Konstruktion, **bevor** `scene.add(splatMesh)`. Das ist mathematisch identisch zum Y/Z-Scale-Flip (`scale.set(1, -1, -1)`), aber sicherer für Splat-Quaternionen — Three.js komponiert die Rotation in die Object3D-Matrix, ohne die einzelnen Splat-Orientierungen umkehren zu müssen.
+
+2. **`OrbitControls` → `FirstPersonControls`** (wiederverwendet aus `welt-canvas.tsx`): WASD + Maus auf Desktop, Touch-Drag + `TouchJoystick` auf Mobile. Pointer-Lock-Pattern wie in der Google-Tiles-Welt.
+
+3. **Spawn IN der Welt, nicht außerhalb**: Nach `onLoad` Bounds berechnen (nach der X-Rotation — `Box3.setFromObject` berücksichtigt rotation), und Kamera setzen auf `(center.x, max.y − 1.6 m, center.z)`. Marble-Welten haben den Capture-Standpunkt nahe Origin und der Boden landet nach OpenCV→OpenGL-Flip bei `box.max.y` (war `box.min.y` im OpenCV-Frame). 1.6 m Augenhöhe sind die Standard-Hochreichweite.
+
+4. **Fly-Mode by default** (`controls.flyMode = true`): Marble-SPZ-Welten haben **keinen watertight Floor-Mesh**, sondern nur Punktwolken — wenn wir einen Y-Clamp auf Ground-Raycast einbauen, schwebt der Avatar an zufälligen Splat-Punkten herum. Fly-Mode mit Space / Q-E für vertikale Bewegung ist die richtige Default-UX für eine Tour-Demo. Floor-Clamp ist nur dann sinnvoll, wenn die Welt aus echter Mesh-Geometrie besteht (z.B. die Google-3D-Tiles in `welt-canvas`).
+
+5. **Click-to-lock-Hint** als Overlay: User sieht nach dem Splat-Load „In die Welt klicken zum Begehen — WASD bewegen, Maus schauen, Shift sprintet, Q/E hoch/runter, ESC verlässt". Pointer-Lock-Cancel via ESC ist Browser-Standard.
+
+**Prevention**:
+
+- **Vor jeder neuen Splat-Quelle (Marble, Luma, Polycam, Scaniverse, …)**: Coordinate-System der Quelle dokumentieren. Default-Annahme „Y-up wie Three.js" ist falsch für mindestens Marble, ROS-Bags, OpenCV-Pipelines und Photogrammetrie aus Photogrammetry-DCC-Tools mit Z-up.
+- **Splat-Viewer-Checklist**: (a) Coordinate-Flip dokumentiert, (b) Kamera-Spawn ist visuell verifiziert innerhalb der Welt, (c) Controls passen zum Use-Case (orbit-around-object vs walk-inside-world), (d) Fly-mode wenn kein Floor existiert.
+- **Klassischer Smell**: Wenn man im Splat-Viewer ein 3D-Modell von außen sieht aber das Modell „eigentlich begehbar" sein soll → fast garantiert ein Spawn-außerhalb-bounds-Problem oder das falsche Control-Schema (OrbitControls statt FirstPerson).

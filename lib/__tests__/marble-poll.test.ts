@@ -62,7 +62,7 @@ describe("pollCustomerPendingOps", () => {
   it("skips operations that are still in flight (done=false)", async () => {
     await markProcessing("c-001", "op-pending");
     const client = fakeClient({
-      "op-pending": { name: "op-pending", done: false } as GetOperationResponse,
+      "op-pending": { name: "op-pending", done: false } as unknown as GetOperationResponse,
     });
     const result = await pollCustomerPendingOps("c-001", client);
     expect(result).toEqual({ checked: 1, ready: 0, failed: 0 });
@@ -78,7 +78,7 @@ describe("pollCustomerPendingOps", () => {
         name: "op-done",
         done: true,
         response: makeWorld("world-1"),
-      } as GetOperationResponse,
+      } as unknown as GetOperationResponse,
     });
     const result = await pollCustomerPendingOps("c-001", client);
     expect(result).toEqual({ checked: 1, ready: 1, failed: 0 });
@@ -101,7 +101,7 @@ describe("pollCustomerPendingOps", () => {
     const world = makeWorld("world-low");
     delete world.assets!.splats!.spz_urls!.full_res;
     const client = fakeClient({
-      "op-low": { name: "op-low", done: true, response: world } as GetOperationResponse,
+      "op-low": { name: "op-low", done: true, response: world } as unknown as GetOperationResponse,
     });
     await pollCustomerPendingOps("c-002", client);
     const after = await getMappingForCustomer("c-002");
@@ -115,7 +115,7 @@ describe("pollCustomerPendingOps", () => {
         name: "op-bad",
         done: true,
         error: { code: 7, message: "image too dark" },
-      } as GetOperationResponse,
+      } as unknown as GetOperationResponse,
     });
     const result = await pollCustomerPendingOps("c-001", client);
     expect(result).toEqual({ checked: 1, ready: 0, failed: 1 });
@@ -127,7 +127,7 @@ describe("pollCustomerPendingOps", () => {
   it("marks failed when done=true but response is null", async () => {
     await markProcessing("c-001", "op-null");
     const client = fakeClient({
-      "op-null": { name: "op-null", done: true, response: null } as GetOperationResponse,
+      "op-null": { name: "op-null", done: true, response: null } as unknown as GetOperationResponse,
     });
     const result = await pollCustomerPendingOps("c-001", client);
     expect(result.failed).toBe(1);
@@ -160,13 +160,13 @@ describe("pollCustomerPendingOps", () => {
         name: "op-1",
         done: true,
         response: makeWorld("w-1"),
-      } as GetOperationResponse,
-      "op-2": { name: "op-2", done: false } as GetOperationResponse,
+      } as unknown as GetOperationResponse,
+      "op-2": { name: "op-2", done: false } as unknown as GetOperationResponse,
       "op-3": {
         name: "op-3",
         done: true,
         error: { code: 13, message: "timeout" },
-      } as GetOperationResponse,
+      } as unknown as GetOperationResponse,
     });
     const result = await pollCustomerPendingOps("c-001", client);
     expect(result).toEqual({ checked: 3, ready: 1, failed: 1 });
@@ -197,7 +197,7 @@ describe("pollCustomerPendingOps", () => {
     );
     await markProcessing("c-001", "op-new");
     const client = fakeClient({
-      "op-new": { name: "op-new", done: false } as GetOperationResponse,
+      "op-new": { name: "op-new", done: false } as unknown as GetOperationResponse,
     });
     await pollCustomerPendingOps("c-001", client);
     const after = await getMappingForCustomer("c-001");
