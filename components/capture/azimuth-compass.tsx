@@ -17,7 +17,14 @@ type IosOrientationEventCtor = {
 
 type IosOrientationEvent = DeviceOrientationEvent & {
   webkitCompassHeading?: number;
+  absolute?: boolean;
 };
+
+type WindowWithAbsoluteEvent = Window & {
+  ondeviceorientationabsolute?: unknown;
+};
+
+const NO_SIGNAL_TIMEOUT_MS = 6_000;
 
 function detectInitialPermission(): "unknown" | "granted" | "needs-prompt" {
   if (typeof window === "undefined" || typeof DeviceOrientationEvent === "undefined") {
@@ -49,19 +56,50 @@ export function AzimuthCompass({ targetAzimuth, hint, onUnsupported }: Props) {
 
   useEffect(() => {
     if (permission !== "granted") return;
+    let received = false;
     const handler = (event: IosOrientationEvent) => {
-      const compass =
-        typeof event.webkitCompassHeading === "number"
-          ? event.webkitCompassHeading
-          : typeof event.alpha === "number"
-            ? (360 - event.alpha) % 360
-            : null;
-      if (compass !== null) {
+      // Priority order:
+      //  1. webkitCompassHeading (iOS Safari) — already in 0..360 magnetic North
+      //  2. event.absolute === true with valid alpha (Android Chrome
+      //     `deviceorientationabsolute` + some Firefox builds) — alpha is the
+      //     compass bearing measured counter-clockwise from magnetic North,
+      //     so the screen-up direction is `(360 - alpha) % 360`.
+      //  3. Plain `deviceorientation` alpha (last resort, may be relative
+      //     to the page-load orientation on some Android devices, but
+      //     better than nothing).
+      let compass: number | null = null;
+      if (typeof event.webkitCompassHeading === "number") {
+        compass = event.webkitCompassHeading;
+      } else if (typeof event.alpha === "number") {
+        compass = (360 - event.alpha) % 360;
+      }
+      if (compass !== null && Number.isFinite(compass)) {
+        received = true;
         setHeading(compass);
       }
     };
-    window.addEventListener("deviceorientation", handler as EventListener, true);
-    return () => window.removeEventListener("deviceorientation", handler as EventListener, true);
+
+    // Prefer `deviceorientationabsolute` on Android (gives true magnetic
+    // North). Fall back to plain `deviceorientation` if not supported.
+    const w = window as WindowWithAbsoluteEvent;
+    const useAbsolute = "ondeviceorientationabsolute" in w;
+    const eventName = useAbsolute ? "deviceorientationabsolute" : "deviceorientation";
+    window.addEventListener(eventName, handler as EventListener, true);
+
+    // No-signal timeout: desktops and some Android devices without a
+    // magnetometer never fire the event. After 6 s, hand off to the
+    // manual selector so the user is never stuck on a spinner.
+    const timeoutId = window.setTimeout(() => {
+      if (!received) {
+        setError("Kein Kompass-Signal — bitte manuell ausrichten.");
+        onUnsupportedRef.current();
+      }
+    }, NO_SIGNAL_TIMEOUT_MS);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      window.removeEventListener(eventName, handler as EventListener, true);
+    };
   }, [permission]);
 
   const requestIosPermission = useCallback(async () => {
@@ -83,6 +121,10 @@ export function AzimuthCompass({ targetAzimuth, hint, onUnsupported }: Props) {
     }
   }, []);
 
+  const switchToManual = useCallback(() => {
+    onUnsupportedRef.current();
+  }, []);
+
   if (permission === "needs-prompt") {
     return (
       <div className="flex flex-col items-center gap-3 p-4 text-center">
@@ -96,6 +138,13 @@ export function AzimuthCompass({ targetAzimuth, hint, onUnsupported }: Props) {
           className="bg-primary text-primary-foreground rounded-full px-4 py-2 text-sm font-medium"
         >
           Kompass aktivieren
+        </button>
+        <button
+          type="button"
+          onClick={switchToManual}
+          className="text-muted-foreground text-xs underline"
+        >
+          oder manuell ausrichten
         </button>
       </div>
     );
@@ -112,9 +161,18 @@ export function AzimuthCompass({ targetAzimuth, hint, onUnsupported }: Props) {
 
   if (heading === null) {
     return (
-      <div className="text-muted-foreground flex items-center gap-2 p-4 text-sm">
-        <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-        Kompass kalibriert sich…
+      <div className="text-muted-foreground flex flex-col items-center gap-2 p-4 text-sm">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          Kompass kalibriert sich…
+        </div>
+        <button
+          type="button"
+          onClick={switchToManual}
+          className="text-xs underline"
+        >
+          Manuell ausrichten
+        </button>
       </div>
     );
   }
@@ -168,6 +226,13 @@ export function AzimuthCompass({ targetAzimuth, hint, onUnsupported }: Props) {
           <p className="text-primary mt-1 text-sm font-semibold">✓ Auf Ziel — bitte auslösen</p>
         )}
       </div>
+      <button
+        type="button"
+        onClick={switchToManual}
+        className="text-muted-foreground text-xs underline"
+      >
+        Lieber manuell ausrichten
+      </button>
     </div>
   );
 }
