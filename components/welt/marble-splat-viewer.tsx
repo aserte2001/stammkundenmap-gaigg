@@ -30,8 +30,11 @@ type Props = {
 const OPENCV_TO_OPENGL_X_ROT = Math.PI;
 
 const EYE_HEIGHT = 1.6;       // metres above world origin for the spawn pose
-const WALK_SPEED = 2.4;       // m/s base — sprint multiplies by 2.4
-const FLY_SPEED = 4.8;        // m/s base when flyMode is enabled
+const WALK_SPEED = 1.5;       // m/s base — sprint multiplies by 2.4
+const FLY_SPEED = 1.5;        // m/s base when flyMode is enabled. Marble worlds
+                              // are typically 3–5 m wide rooms, so 1.5 m/s is
+                              // about one body-length per second — comfortable
+                              // to look around without flying through walls.
 const SPRINT_MULTIPLIER = 2.4;
 
 export function MarbleSplatViewer({ splatUrls, label }: Props) {
@@ -93,29 +96,25 @@ export function MarbleSplatViewer({ splatUrls, label }: Props) {
       onLoad: () => {
         if (disposed) return;
         setProgress(100);
-        // Re-centre the camera now that we know the world bounds, AFTER the
-        // OpenCV→OpenGL rotation is applied (which we did before adding the
-        // mesh to the scene — see below). Spawn inside the world at eye
-        // height, looking toward -Z (Three.js default forward).
+        // Marble worlds are reconstructed with the photographer's standpoint
+        // at the world origin. After the OpenCV→OpenGL X-rotation the origin
+        // still maps to itself, so spawning at (0, 0, 0) puts the eye exactly
+        // where the camera was during capture — inside the dense splat cloud,
+        // looking toward -Z (Three.js default forward). We only adjust the
+        // near/far clip planes from the bounds, never the position.
         try {
           const box = new THREE.Box3().setFromObject(splatMesh);
-          if (box.isEmpty()) return;
-          const center = new THREE.Vector3();
-          box.getCenter(center);
-          const size = new THREE.Vector3();
-          box.getSize(size);
-          // Place the eye at the horizontal world centre, vertically near
-          // the top of the bounding volume (Marble worlds tend to capture
-          // ground around y≈0, so picking max.y - eyeHeight puts us above
-          // the floor instead of underneath the geometry).
-          const eyeY = Math.max(box.max.y - EYE_HEIGHT, center.y);
-          camera.position.set(center.x, eyeY, center.z);
-          camera.near = Math.max(0.05, size.length() * 0.0005);
-          camera.far = Math.max(500, size.length() * 4);
-          camera.updateProjectionMatrix();
+          if (!box.isEmpty()) {
+            const size = new THREE.Vector3();
+            box.getSize(size);
+            camera.near = Math.max(0.05, size.length() * 0.0005);
+            camera.far = Math.max(500, size.length() * 4);
+            camera.updateProjectionMatrix();
+          }
         } catch (err) {
-          console.warn("centring splat failed", err);
+          console.warn("computing splat bounds failed", err);
         }
+        camera.position.set(0, 0, 0);
       },
     });
     // Apply OpenCV→OpenGL fix before the mesh is added. The bounds
@@ -171,12 +170,15 @@ export function MarbleSplatViewer({ splatUrls, label }: Props) {
       const pitchQuat = new THREE.Quaternion().setFromAxisAngle(right, controls.pitch);
       const lookDir = forward.clone().applyQuaternion(pitchQuat).normalize();
 
-      // Build a quaternion that takes the camera's default -Z to lookDir
-      // (with the right vector keeping the roll stable).
+      // Orient the camera so its default forward (-Z local) points along
+      // lookDir. Three.js' Matrix4.lookAt internally sets z = eye - target,
+      // and the camera looks down -Z, so feeding the *positive* lookDir as
+      // target makes the camera look in +lookDir — the direction the user
+      // expects. The earlier multiplyScalar(-1) reversed every input axis.
       const camQuat = new THREE.Quaternion();
       const m = new THREE.Matrix4().lookAt(
         new THREE.Vector3(0, 0, 0),
-        lookDir.clone().multiplyScalar(-1),
+        lookDir,
         up,
       );
       camQuat.setFromRotationMatrix(m);
