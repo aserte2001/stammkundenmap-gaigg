@@ -1,15 +1,17 @@
 import { test, expect } from "@playwright/test";
 
-test("Begehen-CTA in DetailPanel navigiert zur Welt-Route", async ({ page }) => {
+test("Capture-CTA in DetailPanel zeigt eine 3D-Welt-Aktion und verlinkt korrekt", async ({
+  page,
+}) => {
   await page.goto("/?customer=c-001");
-  const cta = page.getByTestId("welt-cta");
+  const cta = page.getByTestId("capture-cta");
   await expect(cta).toBeVisible({ timeout: 10_000 });
-  // Read the href and navigate directly to avoid pointer-events interception
-  // by the absolutely-positioned customer header photo (Next.js <Image fill>).
-  const href = await cta.getAttribute("href");
-  expect(href).toBe("/welt/c-001");
-  await page.goto(href!);
-  expect(page.url()).toContain("/welt/c-001");
+  // Inside the CTA we always have at least one outbound link to either
+  // /capture/c-001 (status none/failed) or /welt/c-001 (status ready/processing).
+  const links = cta.locator("a");
+  await expect(links.first()).toBeVisible();
+  const href = await links.first().getAttribute("href");
+  expect(href).toMatch(/\/(capture|welt)\/c-001/);
 });
 
 test("Vision-Tab-Trigger ist sichtbar im DetailPanel", async ({ page }) => {

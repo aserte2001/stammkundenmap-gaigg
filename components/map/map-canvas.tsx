@@ -10,9 +10,64 @@ import {
   GLOBE_VIEW,
   MAP_STYLES,
   MAPBOX_LIGHT_PRESET,
+  STYLE_VIEW_OVERRIDES,
 } from "@/lib/map-config";
 import { useAppStore } from "@/lib/store";
+import type { MapStyleKey } from "@/lib/store";
 import { MapContext } from "./map-context";
+
+const DEM_SOURCE_ID = "mapbox-dem";
+
+function ensureTerrainAndAtmosphere(instance: mapboxgl.Map, exaggeration: number) {
+  // Standard / Standard-Satellite already ship with terrain + sky + fog;
+  // we only add our own DEM source as a fallback (e.g. when streets-v12 kicks
+  // in after a 404). All calls are wrapped in try/catch because Mapbox throws
+  // synchronously when a style hasn't fully resolved its layers yet.
+  try {
+    if (!instance.getSource(DEM_SOURCE_ID)) {
+      instance.addSource(DEM_SOURCE_ID, {
+        type: "raster-dem",
+        url: "mapbox://mapbox.mapbox-terrain-dem-v1",
+        tileSize: 512,
+        maxzoom: 14,
+      });
+    }
+  } catch {
+    // Style refused the source (already terrained) — fine.
+  }
+  try {
+    instance.setTerrain({ source: DEM_SOURCE_ID, exaggeration });
+  } catch {
+    // Style refused setTerrain — fine, the built-in terrain will handle it.
+  }
+  try {
+    if (!instance.getLayer("sky")) {
+      instance.addLayer({
+        id: "sky",
+        type: "sky",
+        paint: {
+          "sky-type": "atmosphere",
+          "sky-atmosphere-sun": [0, 0],
+          "sky-atmosphere-sun-intensity": 12,
+        },
+      });
+    }
+  } catch {
+    // Style already has a sky layer.
+  }
+  try {
+    instance.setFog({
+      range: [1, 12],
+      color: "#dfe9f3",
+      "horizon-blend": 0.1,
+      "high-color": "#245cdf",
+      "space-color": "#0b1e36",
+      "star-intensity": 0.15,
+    });
+  } catch {
+    // Style refused fog — fine.
+  }
+}
 
 type Props = {
   children?: React.ReactNode;
@@ -69,14 +124,20 @@ export function MapCanvas({ children }: Props) {
     mapRef.current = instance;
 
     const onStyleLoad = () => {
+      const styleKey = lastStyleKeyRef.current as MapStyleKey | "fallback" | null;
+      const override =
+        styleKey && styleKey !== "fallback" ? STYLE_VIEW_OVERRIDES[styleKey] : undefined;
+      const lightPreset = override?.lightPreset ?? MAPBOX_LIGHT_PRESET;
+      const exaggeration = override?.terrainExaggeration ?? 1.1;
       try {
-        instance.setConfigProperty("basemap", "lightPreset", MAPBOX_LIGHT_PRESET);
+        instance.setConfigProperty("basemap", "lightPreset", lightPreset);
         instance.setConfigProperty("basemap", "show3dObjects", true);
         instance.setConfigProperty("basemap", "showPedestrianRoads", true);
         instance.setConfigProperty("basemap", "showRoadLabels", true);
       } catch {
         // Style may not support config properties (e.g., fallback)
       }
+      ensureTerrainAndAtmosphere(instance, exaggeration);
       setIsStyleLoaded(true);
     };
 
@@ -140,6 +201,18 @@ export function MapCanvas({ children }: Props) {
     const styleUrl = MAP_STYLES[mapStyle]?.style ?? FALLBACK_STYLE;
     lastStyleKeyRef.current = mapStyle;
     setIsStyleLoaded(false);
+
+    const onceLoaded = () => {
+      const override = STYLE_VIEW_OVERRIDES[mapStyle];
+      // Skip pitch animation while we're still in the globe-intro view —
+      // the intro animation owns the camera until isIntroComplete flips.
+      if (override && instance.getZoom() > 4) {
+        instance.easeTo({ pitch: override.pitch, duration: 800 });
+      }
+      instance.off("style.load", onceLoaded);
+    };
+    instance.on("style.load", onceLoaded);
+
     instance.setStyle(styleUrl);
   }, [mapStyle]);
 

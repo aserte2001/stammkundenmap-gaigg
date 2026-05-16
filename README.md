@@ -18,6 +18,7 @@ Eine premium-interaktive Karte der 25 Stammkunden der fiktiven „Gartengestaltu
 - **Detail-Panel** — Foto + VIP-Krone, Status-Chip, Tabs (Übersicht, Aufträge, Notizen, 3D-View, **Vision**), Route-planen-Button, **Welt-begehen-CTA**
 - **3D-Splat-Viewer** — Iframe (Default) oder Three.js + `@lumaai/luma-web` (progressive enhancement)
 - **🆕 Begehbare 3D-Welt** — `/welt/[customerId]`: Google Photorealistic 3D Tiles + Luma-Splat-Hotspots + First-Person-WASD/Joystick (siehe Abschnitt unten)
+- **🆕 Marble-Splat-Welten** — admin-only Capture-Workflow: 4–8 Phone-Fotos → World Labs Marble API → Spark 2.0 Splat-Renderer im Browser. Pro Welt ~€1,18 (siehe Abschnitt unten)
 - **🆕 Vision-Tab** — KI-Konzept-Generierung mit OpenAI gpt-image-1 (4 Stile × 4 Saisons), mit Disclaimer, Cache, Rate-Limit
 - **Command-Palette** — `Cmd+K` mit Kunden, Stil-Switch, Filter-Shortcuts
 - **Tastaturnavigation** — `/`, `↑/↓`, `Enter`, `Esc`, `Cmd+K`, `?` (Shortcuts-Dialog)
@@ -38,6 +39,41 @@ Klick auf eine Kundennadel öffnet das Detail-Panel mit einem **„Welt begehen"
 - **Fallback**: ohne Google-Key oder ohne WebGL → freundlicher Setup-Hinweis statt leerer Screen
 
 → **Setup-Guide**: [docs/welt-setup.md](./docs/welt-setup.md) · **Steuerung**: [docs/welt-keyboard.md](./docs/welt-keyboard.md) · **Architektur**: [docs/welt-architecture.md](./docs/welt-architecture.md)
+
+## 🪐 Marble-Splat-Welten — `/capture/[customerId]` & `/welt/[customerId]`
+
+VIP-Stammkunden bekommen photorealistische 3D-Welten ihres Gartens, geführt vom Admin (Simon) vor Ort.
+
+- **Capture vor Ort**: Phone-getriggerter Workflow mit Kompass-Coaching, 4 / 8 Fotos je nach Garten-Größe; Drohnen-Upload als Alternative; IndexedDB-Resume bei Browser-Schluss
+- **Marble API**: World Labs Marble (`marble-1.1` für Standard, `marble-1.1-plus` für große Gärten), Pricing 1.600–3.100 Credits ≈ €1,18–€2,28 pro Welt
+- **Spark 2.0 Renderer**: drei Auflösungs-Tiers (Mobile 100k, Desktop 500k, HQ full_res), Auto-Detection via `pointer:coarse`, manueller Override
+- **Multi-World**: bei großen Gärten mehrere Captures mit Standort-Switcher
+- **Vercel-Backend**: Blob für `splat-mappings.json`, Cron 1×/min für Status-Polling, Edge Config für monatlichen Cost-Cap (Soft 50, Hard 100)
+- **Auth**: Vercel Password Protection für die ganze App (eine User-Group: Simon)
+- **DSGVO**: [/datenschutz](./app/datenschutz/page.tsx) Page erwähnt World Labs als Auftragsverarbeiter, AVV-Anfrage in [docs/avv-template.md](./docs/avv-template.md)
+
+→ **Workflow-Doku**: [docs/capture-workflow.md](./docs/capture-workflow.md) · **Tech-Doku**: [docs/marble-integration.md](./docs/marble-integration.md) · **API-Schema**: [docs/marble-api-schema.md](./docs/marble-api-schema.md)
+
+### Setup-Quickref (Marble)
+
+```bash
+# 1. Vercel Marble API key (kaufst du auf platform.worldlabs.ai)
+echo "WORLDLABS_API_KEY=<dein-key>" >> .env.local
+
+# 2. Vercel Blob + Edge Config: einmalig per Vercel Dashboard anlegen
+#    Storage → Create Blob Store → Name "stammkundenmap-splats"
+#    Storage → Create Edge Config → Name "stammkundenmap-counters"
+#    → BLOB_READ_WRITE_TOKEN und EDGE_CONFIG werden automatisch in env vars gesetzt
+
+# 3. Cron-Secret generieren und setzen
+vercel env add CRON_SECRET production  # input: $(openssl rand -hex 32)
+
+# 4. Vercel Password Protection im Dashboard aktivieren
+#    Settings → Deployment Protection → Password Protection (Production+Preview)
+
+# 5. Deploy — vercel.json registriert automatisch den Cron */1 * * * *
+vercel --prod
+```
 
 ### Vision-Tab
 

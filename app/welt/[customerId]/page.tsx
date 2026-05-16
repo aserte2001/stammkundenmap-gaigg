@@ -3,8 +3,13 @@ import type { Metadata } from "next";
 import { customers, type Customer } from "@/lib/customers";
 import { getPrimaryHotspot } from "@/lib/welt/hotspot-registry";
 import { getWeltEnvStatus } from "@/lib/welt/env-check";
+import { getMappingForCustomer } from "@/lib/customers/splat-store";
 import { WeltShell } from "@/components/welt/welt-shell";
-import { WeltUnavailable } from "@/components/welt/welt-unavailable";
+import { MarbleWeltShell } from "@/components/welt/marble-welt-shell";
+import { MarbleStatusShell } from "@/components/welt/marble-status-shell";
+
+// Splat-Mappings ändern sich zur Laufzeit (Cron schreibt sie), daher dynamic.
+export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: Promise<{ customerId: string }>;
@@ -38,11 +43,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
+// Liste der bekannten Customer-IDs als Hint; tatsächliches Routing bleibt dynamic.
 export function generateStaticParams() {
   return customers.map((c) => ({ customerId: c.id }));
 }
-
-export const dynamicParams = false;
 
 export default async function WeltCustomerPage({ params, searchParams }: PageProps) {
   const { customerId } = await params;
@@ -56,6 +60,8 @@ export default async function WeltCustomerPage({ params, searchParams }: PagePro
   const hotspot = getPrimaryHotspot(customer);
   const debug = search.debug === "1";
   const onboardingSkip = search.onboarding === "skip";
+
+  const mapping = await getMappingForCustomer(customerId);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -76,6 +82,39 @@ export default async function WeltCustomerPage({ params, searchParams }: PagePro
     },
   };
 
+  // Wenn ein Marble-Splat existiert, ist der Spark-Renderer der Hauptpfad —
+  // unabhängig davon ob Google 3D Tiles konfiguriert sind.
+  if (mapping.status === "ready" && mapping.worlds.length > 0) {
+    return (
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <MarbleWeltShell customer={customer} worlds={mapping.worlds} />
+      </>
+    );
+  }
+
+  if (mapping.status === "processing" || mapping.status === "failed") {
+    return (
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <MarbleStatusShell
+          customer={customer}
+          status={mapping.status}
+          errorMessage={mapping.errorMessage}
+          startedAt={mapping.startedAt}
+        />
+      </>
+    );
+  }
+
+  // Status === "none": Wenn Google 3D Tiles verfügbar sind, zeigen wir die
+  // Drohnen-Anflug-Welt als Vorschau-Erlebnis. Sonst schlagen wir Capture vor.
   if (!env.googleTiles) {
     return (
       <>
@@ -83,11 +122,7 @@ export default async function WeltCustomerPage({ params, searchParams }: PagePro
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <WeltUnavailable
-          customer={customer}
-          reason="googleTiles"
-          details="Die Photorealistic-3D-Tiles benötigen einen Google Map Tiles API-Key. Sobald NEXT_PUBLIC_GOOGLE_MAPS_API_KEY gesetzt ist, lädt die Welt automatisch."
-        />
+        <MarbleStatusShell customer={customer} status="none" />
       </>
     );
   }

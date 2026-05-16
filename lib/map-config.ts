@@ -32,6 +32,28 @@ export const GLOBE_VIEW = {
 
 export const MAPBOX_LIGHT_PRESET = "dusk";
 
+export type MapboxLightPreset = "dawn" | "day" | "dusk" | "night";
+
+export type StyleViewOverride = {
+  pitch: number;
+  lightPreset: MapboxLightPreset;
+  /** Multiplier for DEM exaggeration when terrain is added as a fallback. */
+  terrainExaggeration: number;
+};
+
+/**
+ * Per-style view tuning. The Standard styles already ship with built-in 3D
+ * terrain and atmospheric fog, so we just nudge the camera pitch and the
+ * sun position to make each style feel intentional:
+ *  - "Atmosphäre" (standard): pitched 50°, dusk preset → warm, cinematic.
+ *  - "Satellit" (standard-satellite): pitched 65°, day preset → terrain reads
+ *    cleanly under direct light, the Pöstlingberg pops.
+ */
+export const STYLE_VIEW_OVERRIDES: Record<MapStyleKey, StyleViewOverride> = {
+  standard: { pitch: 50, lightPreset: "dusk", terrainExaggeration: 1.1 },
+  "standard-satellite": { pitch: 65, lightPreset: "day", terrainExaggeration: 1.25 },
+};
+
 export const STATUS_COLORS = {
   aktiv: "#7fbf5c",
   "wartung-faellig": "#f6a72c",

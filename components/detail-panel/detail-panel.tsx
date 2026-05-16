@@ -2,9 +2,9 @@
 
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { customerById, useAppStore } from "@/lib/store";
+import { CaptureCta } from "./capture-cta";
 import { CustomerHeader } from "./customer-header";
 import { ServiceTabs } from "./service-tabs";
-import { WeltCta } from "./welt-cta";
 
 type DetailPanelProps = {
   visionAvailable?: boolean;
@@ -30,7 +30,7 @@ export function DetailPanel({ visionAvailable = true }: DetailPanelProps) {
         {customer ? (
           <>
             <CustomerHeader customer={customer} />
-            <WeltCta customer={customer} />
+            <CaptureCta customer={customer} />
             <ServiceTabs customer={customer} visionAvailable={visionAvailable} />
           </>
         ) : null}

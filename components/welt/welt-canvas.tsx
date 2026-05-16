@@ -323,6 +323,26 @@ export function WeltCanvas({
     handleRef.current = handle;
     onReady?.(handle);
 
+    // Debug-only inspection hook: only attached when ?debug=1 is in the URL.
+    // Hidden-tab MCP browsers throttle requestAnimationFrame and drop synthetic
+    // keyboard events, which prevents the e2e harness from exercising WASD.
+    // This window-scoped hook lets the harness poke controls.input directly
+    // (no dependency on the keydown listener) and confirm the motion pipeline
+    // updates camera position.
+    if (debug && typeof window !== "undefined") {
+      (window as unknown as Record<string, unknown>).__weltDebug = {
+        controls,
+        camera,
+        tilesRenderer,
+        get isPaused() {
+          return pausedRef.current;
+        },
+        get position() {
+          return ecefToLatLngAlt(camera.position);
+        },
+      };
+    }
+
     let animId = 0;
     let lastTimestamp = performance.now();
 

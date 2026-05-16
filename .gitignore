@@ -50,3 +50,6 @@ next-env.d.ts
 
 # Lighthouse
 .lighthouseci/
+
+# local splat-mapping cache (Marble pipeline dev fallback)
+/.cache/

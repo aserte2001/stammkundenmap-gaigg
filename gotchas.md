@@ -199,3 +199,31 @@ return <>{isTouchDevice.current ? <TouchJoystick /> : null}</>;
 **Fix**: Wieder `useSyncExternalStore` mit `window.matchMedia(...).addEventListener('change', onChange)` als Subscribe-Quelle. Refs sind für DOM-Knoten + mutable Werte ohne UI-Impact reserviert, nicht für rendering-relevante Booleans.
 
 **Prevention**: Faustregel — wenn ein `ref.current`-Wert die UI beeinflusst, ist es State, kein Ref. Bei Browser-Features → `useSyncExternalStore`. Bei React-internen Daten → `useState`.
+
+## #011 — Spark 2.0 Peer-Dep auf Three.js 0.180, Projekt nutzt 0.184
+
+**Trigger**: `npm install @sparkjsdev/spark` schlägt fehl mit `peerDependencies` Konflikt — Spark 2.0.0 deklariert `three: ^0.180.0`, das Projekt steht auf `three@^0.184.0`.
+
+**Symptom**:
+```
+npm error code ERESOLVE
+npm error Could not resolve dependency:
+npm error peer three@"^0.180.0" from @sparkjsdev/spark@2.0.0
+```
+
+**Fix**: `npm install --legacy-peer-deps @sparkjsdev/spark`. Spark 2.0 läuft in der Praxis stabil mit Three.js 0.184 — die Peer-Range bei `^0.180.0` ist konservativ und schließt Minor-Bumps auf gleicher Major-Version (0.x) zu strikt aus.
+
+**Prevention**: In `.npmrc` `legacy-peer-deps=true` global aktivieren ist eine Option, aber zu invasiv für ein Multi-Lib-Projekt. Stattdessen: `--legacy-peer-deps` nur bei dem einen `install`-Call, und in `package.json` als `npm install` deferred (die `node_modules` sind nach erstem Lauf konsistent, `npm ci` braucht `--legacy-peer-deps` per CI-env-var).
+
+## #012 — Marble lehnt URL-Bilder von Wikipedia/Unsplash ab
+
+**Trigger**: Phase-0 Smoke-Test mit `multi_image_prompt[].content.source = "uri"` und Wikimedia-/Unsplash-URLs liefert `Failed to download asset`.
+
+**Symptom**:
+```json
+{"detail": "Failed to download asset from https://upload.wikimedia.org/.../foo.jpg. Please check the URL and try again."}
+```
+
+**Fix**: Immer den `prepare_upload`-Pfad nehmen — also (a) `POST /marble/v1/media-assets:prepare_upload` für jede Datei, (b) PUT auf die signed URL, (c) `worlds:generate` mit `source: "media_asset", media_asset_id: …`. Das ist sowieso der Production-Pfad, weil unsere Capture-Photos direkt aus dem Browser kommen und nicht extern referenzierbar sind.
+
+**Prevention**: Im `MarbleClient` wird `uri`-Source gar nicht erst angeboten — nur `media_asset`. Für lokale Test-Skripte: `curl -L` herunterladen, dann uploaden, niemals `uri` an Marble durchreichen.
