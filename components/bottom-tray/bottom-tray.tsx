@@ -124,11 +124,12 @@ export function BottomTray() {
   return (
     <motion.div
       ref={containerRef}
-      className="bg-background/85 border-border pointer-events-auto fixed bottom-0 left-0 z-30 flex w-full flex-col overflow-hidden border-t shadow-2xl backdrop-blur-2xl md:left-4 md:w-[400px]"
+      className="bg-background border-border pointer-events-auto fixed bottom-0 left-0 z-30 flex w-full flex-col overflow-hidden border-t shadow-2xl backdrop-blur-2xl md:left-4 md:w-[400px] md:bg-background/85"
       style={{
         height,
         borderTopLeftRadius: borderRadius,
         borderTopRightRadius: borderRadius,
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
         y,
       }}
       animate={{ height }}
