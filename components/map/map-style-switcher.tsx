@@ -22,12 +22,12 @@ export function MapStyleSwitcher() {
                   variant={isActive ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setMapStyle(key)}
-                  className="gap-2 rounded-full"
+                  className="min-h-[40px] gap-2 rounded-full md:min-h-0"
                   aria-label={`Karten-Stil ${MAP_STYLES[key].label}`}
                   aria-pressed={isActive}
                 >
                   <Layers className="h-4 w-4" />
-                  {MAP_STYLES[key].label}
+                  <span className="hidden md:inline">{MAP_STYLES[key].label}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="bottom">{MAP_STYLES[key].label}</TooltipContent>

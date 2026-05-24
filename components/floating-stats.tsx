@@ -22,8 +22,8 @@ export function FloatingStats() {
   const filteredFlag = hasActiveFilters(filters) || viewportOnly;
 
   return (
-    <div className="pointer-events-auto absolute top-4 left-4 z-20 flex flex-col gap-2">
-      <div className="border-border bg-card/85 flex items-center gap-3 rounded-2xl border px-4 py-2.5 shadow-lg backdrop-blur-xl">
+    <div className="pointer-events-auto absolute top-4 left-4 z-20 flex max-w-[calc(100vw-6rem)] flex-col gap-2">
+      <div className="border-border bg-card/85 flex items-center gap-2 rounded-2xl border px-3 py-2 shadow-lg backdrop-blur-xl md:gap-3 md:px-4 md:py-2.5">
         <Logo size={32} showWordmark={false} />
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
@@ -33,8 +33,8 @@ export function FloatingStats() {
               <span className="text-muted-foreground text-[10px]">gefiltert</span>
             ) : null}
           </div>
-          <div className="bg-border h-4 w-px" />
-          <div className="flex items-center gap-1.5">
+          <div className="bg-border hidden h-4 w-px md:block" />
+          <div className="hidden items-center gap-1.5 md:flex">
             <Wallet className="text-muted-foreground h-3.5 w-3.5" />
             <span className="text-foreground text-sm font-semibold">
               {formatCompactCurrency(stats.yearlyRevenueEur)}
@@ -43,7 +43,7 @@ export function FloatingStats() {
         </div>
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-muted-foreground hover:text-foreground ml-1 transition-colors"
+          className="text-muted-foreground hover:text-foreground ml-1 hidden min-h-[44px] min-w-[44px] items-center justify-center transition-colors md:flex"
           aria-label={expanded ? "Stats einklappen" : "Stats ausklappen"}
         >
           <ChevronDown
@@ -59,7 +59,7 @@ export function FloatingStats() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.95 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="border-border bg-card/85 grid grid-cols-2 gap-2 rounded-2xl border p-3 shadow-lg backdrop-blur-xl"
+            className="border-border bg-card/85 hidden grid-cols-2 gap-2 rounded-2xl border p-3 shadow-lg backdrop-blur-xl md:grid"
           >
             <StatMini
               icon={<Sparkles className="h-3 w-3" />}

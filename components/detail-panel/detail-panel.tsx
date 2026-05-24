@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { customerById, useAppStore } from "@/lib/store";
+import { useIsMobile } from "@/lib/use-mobile";
 import { CaptureCta } from "./capture-cta";
 import { CustomerHeader } from "./customer-header";
 import { ServiceTabs } from "./service-tabs";
@@ -16,6 +17,19 @@ export function DetailPanel({ visionAvailable = true }: DetailPanelProps) {
   const selectedId = useAppStore((s) => s.selectedCustomerId);
   const select = useAppStore((s) => s.select);
   const customer = customerById(selectedId);
+  const isMobile = useIsMobile();
+
+  const motionProps = isMobile
+    ? {
+        initial: { opacity: 0, y: "100%" as const },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: "100%" as const },
+      }
+    : {
+        initial: { opacity: 0, y: 40, scale: 0.96 },
+        animate: { opacity: 1, y: 0, scale: 1 },
+        exit: { opacity: 0, y: 40, scale: 0.96 },
+      };
 
   return (
     <AnimatePresence>
@@ -33,19 +47,26 @@ export function DetailPanel({ visionAvailable = true }: DetailPanelProps) {
           />
           <motion.div
             key="detail-panel"
-            initial={{ opacity: 0, y: 40, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 40, scale: 0.96 }}
+            {...motionProps}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             role="dialog"
             aria-label={customer.name}
             aria-modal="true"
-            className="border-border bg-background/95 fixed top-1/2 left-1/2 z-50 flex max-h-[85dvh] w-[calc(100%-2rem)] max-w-[520px] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 overflow-hidden rounded-3xl border p-5 shadow-2xl backdrop-blur-2xl"
+            className={
+              isMobile
+                ? "border-border bg-background/95 fixed bottom-0 left-0 right-0 z-50 flex max-h-[90dvh] flex-col gap-4 overflow-hidden rounded-t-3xl border-t p-5 shadow-2xl backdrop-blur-2xl"
+                : "border-border bg-background/95 fixed top-1/2 left-1/2 z-50 flex max-h-[85dvh] w-[calc(100%-2rem)] max-w-[520px] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 overflow-hidden rounded-3xl border p-5 shadow-2xl backdrop-blur-2xl"
+            }
           >
+            {isMobile ? (
+              <div className="flex justify-center pb-1">
+                <div className="bg-muted-foreground/40 h-1 w-10 rounded-full" />
+              </div>
+            ) : null}
             <Button
               variant="ghost"
               size="icon"
-              className="absolute top-3 right-3 z-10 rounded-full"
+              className="absolute top-3 right-3 z-10 h-10 w-10 rounded-full md:h-8 md:w-8"
               onClick={() => select(null)}
               aria-label="Schließen"
             >

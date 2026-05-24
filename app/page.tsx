@@ -43,7 +43,7 @@ export default function HomePage() {
         <SelectCustomerFromUrl />
       </Suspense>
 
-      <header className="pointer-events-none absolute top-4 right-4 z-20 flex items-center gap-2">
+      <header className="pointer-events-none absolute top-4 right-4 z-20 flex flex-col items-end gap-1.5 md:flex-row md:items-center md:gap-2">
         <div className="pointer-events-auto">
           <SeasonToggle />
         </div>

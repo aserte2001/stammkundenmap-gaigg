@@ -46,11 +46,12 @@ export function MapControls() {
   };
 
   return (
-    <div className="pointer-events-auto absolute top-4 right-4 z-20 flex flex-col gap-2">
+    <div className="pointer-events-auto absolute bottom-36 right-2.5 z-20 flex flex-col gap-2 md:bottom-40">
       <Button
         variant="secondary"
         size="icon"
         onClick={flyToLinz}
+        className="h-10 w-10 md:h-8 md:w-8"
         title="Auf Linz zentrieren"
         aria-label="Auf Linz zentrieren"
       >
@@ -60,6 +61,7 @@ export function MapControls() {
         variant="secondary"
         size="icon"
         onClick={resetPitch}
+        className="h-10 w-10 md:h-8 md:w-8"
         title="Neigung zurücksetzen"
         aria-label="Neigung zurücksetzen"
       >

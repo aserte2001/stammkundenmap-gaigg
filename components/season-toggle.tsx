@@ -30,7 +30,7 @@ export function SeasonToggle() {
                   variant={isActive ? "default" : "ghost"}
                   size="icon"
                   onClick={() => setSeason(key)}
-                  className="h-8 w-8 rounded-full"
+                  className="h-10 w-10 rounded-full md:h-8 md:w-8"
                   aria-label={`Saison: ${SEASON_CONFIG[key].label}`}
                   aria-pressed={isActive}
                 >

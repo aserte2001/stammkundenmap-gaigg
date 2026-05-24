@@ -17,7 +17,8 @@ type Particle = {
   phase: number;
 };
 
-const MAX_PARTICLES = 25;
+const MAX_PARTICLES_DESKTOP = 25;
+const MAX_PARTICLES_MOBILE = 12;
 
 function createParticle(width: number, height: number, type: string): Particle {
   const base: Particle = {
@@ -154,19 +155,23 @@ export function SeasonParticles() {
     const particles: Particle[] = [];
     const type = SEASON_CONFIG[season].particleType;
 
+    let maxParticles = window.innerWidth < 768 ? MAX_PARTICLES_MOBILE : MAX_PARTICLES_DESKTOP;
+    const baseInterval = type === "sunflare" ? 200 : 400;
+    let spawnInterval = window.innerWidth < 768 ? baseInterval * 1.5 : baseInterval;
+    let lastSpawn = 0;
+
     const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
       canvas.style.width = `${window.innerWidth}px`;
       canvas.style.height = `${window.innerHeight}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      maxParticles = window.innerWidth < 768 ? MAX_PARTICLES_MOBILE : MAX_PARTICLES_DESKTOP;
+      spawnInterval = window.innerWidth < 768 ? baseInterval * 1.5 : baseInterval;
     };
     resize();
     window.addEventListener("resize", resize);
-
-    let lastSpawn = 0;
-    const spawnInterval = type === "sunflare" ? 200 : 400;
 
     const tick = (time: number) => {
       const w = window.innerWidth;
@@ -174,7 +179,7 @@ export function SeasonParticles() {
 
       ctx.clearRect(0, 0, w, h);
 
-      if (time - lastSpawn > spawnInterval && particles.length < MAX_PARTICLES) {
+      if (time - lastSpawn > spawnInterval && particles.length < maxParticles) {
         particles.push(createParticle(w, h, type));
         lastSpawn = time;
       }

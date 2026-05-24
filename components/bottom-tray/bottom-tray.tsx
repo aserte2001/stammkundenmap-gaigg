@@ -1,21 +1,36 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, useMotionValue, useTransform, useReducedMotion } from "motion/react";
-import { ChevronUp, GripHorizontal } from "lucide-react";
+import { ChevronUp } from "lucide-react";
 import { customers } from "@/lib/customers";
 import { filterCustomers, filterStats, hasActiveFilters, useAppStore } from "@/lib/store";
+import { useIsMobile } from "@/lib/use-mobile";
 import { CustomerList } from "@/components/sidebar/customer-list";
 import { FilterBar } from "@/components/sidebar/filter-bar";
 import { SearchInput } from "@/components/sidebar/search-input";
 
 type SnapLevel = "collapsed" | "peek" | "full";
 
-const SNAP_HEIGHTS: Record<SnapLevel, number> = {
-  collapsed: 72,
-  peek: 380,
-  full: 680,
-};
+function useSnapHeights() {
+  const [vh, setVh] = useState(typeof window !== "undefined" ? window.innerHeight : 800);
+  const mobile = useIsMobile();
+
+  useEffect(() => {
+    const update = () => setVh(window.innerHeight);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  return useMemo(
+    () =>
+      mobile
+        ? { collapsed: 64, peek: Math.round(vh * 0.4), full: Math.round(vh * 0.85) }
+        : { collapsed: 72, peek: 380, full: 680 },
+    [mobile, vh],
+  );
+}
 
 function TrayContent({ level }: { level: SnapLevel }) {
   const filters = useAppStore((s) => s.filters);
@@ -61,32 +76,48 @@ function TrayContent({ level }: { level: SnapLevel }) {
 }
 
 export function BottomTray() {
-  const [level, setLevel] = useState<SnapLevel>("peek");
+  const mobile = useIsMobile();
+  const [level, setLevel] = useState<SnapLevel>(mobile ? "collapsed" : "peek");
   const containerRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const y = useMotionValue(0);
+  const snapHeights = useSnapHeights();
+  const initialMobileRef = useRef(mobile);
 
-  const height = SNAP_HEIGHTS[level];
-
-  const snapTo = (newLevel: SnapLevel) => {
-    setLevel(newLevel);
-    y.set(0);
-  };
-
-  const handleDragEnd = (_: unknown, info: { velocity: { y: number }; offset: { y: number } }) => {
-    const swipeUp = info.velocity.y < -200 || info.offset.y < -60;
-    const swipeDown = info.velocity.y > 200 || info.offset.y > 60;
-
-    if (swipeUp) {
-      if (level === "collapsed") snapTo("peek");
-      else if (level === "peek") snapTo("full");
-    } else if (swipeDown) {
-      if (level === "full") snapTo("peek");
-      else if (level === "peek") snapTo("collapsed");
-    } else {
-      y.set(0);
+  useEffect(() => {
+    if (mobile !== initialMobileRef.current) {
+      initialMobileRef.current = mobile;
+      setLevel(mobile ? "collapsed" : "peek");
     }
-  };
+  }, [mobile]);
+
+  const height = snapHeights[level];
+
+  const snapTo = useCallback(
+    (newLevel: SnapLevel) => {
+      setLevel(newLevel);
+      y.set(0);
+    },
+    [y],
+  );
+
+  const handleDragEnd = useCallback(
+    (_: unknown, info: { velocity: { y: number }; offset: { y: number } }) => {
+      const swipeUp = info.velocity.y < -200 || info.offset.y < -60;
+      const swipeDown = info.velocity.y > 200 || info.offset.y > 60;
+
+      if (swipeUp) {
+        if (level === "collapsed") snapTo("peek");
+        else if (level === "peek") snapTo("full");
+      } else if (swipeDown) {
+        if (level === "full") snapTo("peek");
+        else if (level === "peek") snapTo("collapsed");
+      } else {
+        y.set(0);
+      }
+    },
+    [level, snapTo, y],
+  );
 
   const borderRadius = useTransform(y, [-100, 0], [28, 24]);
 
@@ -109,7 +140,7 @@ export function BottomTray() {
       aria-label="Kundenliste"
     >
       <motion.div
-        className="flex cursor-grab touch-none flex-col items-center gap-1 pb-1 pt-3 active:cursor-grabbing"
+        className="flex min-h-[44px] cursor-grab touch-none flex-col items-center justify-center gap-1 active:cursor-grabbing"
         drag="y"
         dragConstraints={{ top: -80, bottom: 80 }}
         dragElastic={0.15}
