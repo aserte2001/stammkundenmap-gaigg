@@ -9,9 +9,9 @@ import {
   FALLBACK_STYLE,
   GLOBE_VIEW,
   MAP_STYLES,
-  MAPBOX_LIGHT_PRESET,
   STYLE_VIEW_OVERRIDES,
 } from "@/lib/map-config";
+import { SEASON_CONFIG } from "@/lib/season";
 import { useAppStore } from "@/lib/store";
 import type { MapStyleKey } from "@/lib/store";
 import { MapContext } from "./map-context";
@@ -80,6 +80,7 @@ export function MapCanvas({ children }: Props) {
   const [map, setMap] = useState<mapboxgl.Map | null>(null);
   const [isStyleLoaded, setIsStyleLoaded] = useState(false);
   const mapStyle = useAppStore((s) => s.mapStyle);
+  const season = useAppStore((s) => s.season);
   const isIntroComplete = useAppStore((s) => s.isIntroComplete);
   const setVisibleIds = useAppStore((s) => s.setVisibleIds);
 
@@ -127,7 +128,8 @@ export function MapCanvas({ children }: Props) {
       const styleKey = lastStyleKeyRef.current as MapStyleKey | "fallback" | null;
       const override =
         styleKey && styleKey !== "fallback" ? STYLE_VIEW_OVERRIDES[styleKey] : undefined;
-      const lightPreset = override?.lightPreset ?? MAPBOX_LIGHT_PRESET;
+      const currentSeason = useAppStore.getState().season;
+      const lightPreset = SEASON_CONFIG[currentSeason].lightPreset;
       const exaggeration = override?.terrainExaggeration ?? 1.1;
       try {
         instance.setConfigProperty("basemap", "lightPreset", lightPreset);
@@ -215,6 +217,18 @@ export function MapCanvas({ children }: Props) {
 
     instance.setStyle(styleUrl);
   }, [mapStyle]);
+
+  // Sync Mapbox light preset when season changes.
+  useEffect(() => {
+    const instance = mapRef.current;
+    if (!instance || !isStyleLoaded) return;
+    const lightPreset = SEASON_CONFIG[season].lightPreset;
+    try {
+      instance.setConfigProperty("basemap", "lightPreset", lightPreset);
+    } catch {
+      // Fallback style doesn't support config properties
+    }
+  }, [season, isStyleLoaded]);
 
   const value = useMemo(() => ({ map, isStyleLoaded }), [map, isStyleLoaded]);
 
