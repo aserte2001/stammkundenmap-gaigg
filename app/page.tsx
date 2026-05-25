@@ -12,9 +12,6 @@ import { MapShell } from "@/components/map/map-shell";
 import { MapStyleSwitcher } from "@/components/map/map-style-switcher";
 import { SelectCustomerFromUrl } from "@/components/map/select-customer-from-url";
 import { ThreeDBuildingsLayer } from "@/components/map/three-d-buildings-layer";
-import { SeasonParticles } from "@/components/season-particles";
-import { SeasonSync } from "@/components/season-sync";
-import { SeasonToggle } from "@/components/season-toggle";
 import { ShortcutsDialog } from "@/components/shortcuts-dialog";
 import { hasOpenAI } from "@/lib/env";
 
@@ -22,8 +19,6 @@ export default function HomePage() {
   const visionAvailable = hasOpenAI();
   return (
     <main className="bg-background text-foreground relative h-dvh w-full overflow-hidden">
-      <SeasonSync />
-
       <MapShell>
         <ThreeDBuildingsLayer />
         <ClusterHeatLayer />
@@ -32,7 +27,6 @@ export default function HomePage() {
         <IntroAnimation />
       </MapShell>
 
-      <SeasonParticles />
       <FloatingStats />
       <BottomTray />
       <DetailPanel visionAvailable={visionAvailable} />
@@ -43,10 +37,7 @@ export default function HomePage() {
         <SelectCustomerFromUrl />
       </Suspense>
 
-      <header className="pointer-events-none absolute top-4 right-4 z-20 flex flex-col items-end gap-1.5 md:flex-row md:items-center md:gap-2">
-        <div className="pointer-events-auto">
-          <SeasonToggle />
-        </div>
+      <header className="pointer-events-none absolute top-4 right-4 z-20">
         <div className="pointer-events-auto">
           <MapStyleSwitcher />
         </div>

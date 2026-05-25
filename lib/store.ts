@@ -8,7 +8,6 @@ import {
   type GardenType,
   type Service,
 } from "./customers";
-import { detectSeason, type Season } from "./season";
 
 export type MapStyleKey = "standard" | "standard-satellite";
 
@@ -31,7 +30,6 @@ type StoreState = {
   splatViewerOpen: boolean;
   commandPaletteOpen: boolean;
   shortcutsDialogOpen: boolean;
-  season: Season;
 };
 
 type StoreActions = {
@@ -50,7 +48,6 @@ type StoreActions = {
   setSplatViewerOpen: (open: boolean) => void;
   setCommandPaletteOpen: (open: boolean) => void;
   setShortcutsDialogOpen: (open: boolean) => void;
-  setSeason: (season: Season) => void;
 };
 
 const emptyFilters = (): FilterState => ({
@@ -79,7 +76,6 @@ export const useAppStore = create<StoreState & StoreActions>((set) => ({
   splatViewerOpen: false,
   commandPaletteOpen: false,
   shortcutsDialogOpen: false,
-  season: detectSeason(),
   select: (id) => set({ selectedCustomerId: id }),
   hover: (id) => set({ hoveredCustomerId: id }),
   toggleStatus: (status) =>
@@ -99,7 +95,6 @@ export const useAppStore = create<StoreState & StoreActions>((set) => ({
   setSplatViewerOpen: (open) => set({ splatViewerOpen: open }),
   setCommandPaletteOpen: (open) => set({ commandPaletteOpen: open }),
   setShortcutsDialogOpen: (open) => set({ shortcutsDialogOpen: open }),
-  setSeason: (season) => set({ season }),
 }));
 
 const fuse = new Fuse(customers, {
