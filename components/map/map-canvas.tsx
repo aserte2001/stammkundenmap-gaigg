@@ -4,24 +4,18 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-import {
-  DEFAULT_VIEW,
-  FALLBACK_STYLE,
-  GLOBE_VIEW,
-  MAP_STYLES,
-  STYLE_VIEW_OVERRIDES,
-} from "@/lib/map-config";
+import { DEFAULT_VIEW, FALLBACK_STYLE, GLOBE_VIEW, MAP_STYLES, STYLE_VIEW_OVERRIDES } from "@/lib/map-config";
 import { useAppStore } from "@/lib/store";
 import type { MapStyleKey } from "@/lib/store";
 import { MapContext } from "./map-context";
 
 const DEM_SOURCE_ID = "mapbox-dem";
 
-function ensureTerrainAndAtmosphere(instance: mapboxgl.Map, exaggeration: number) {
-  // Standard / Standard-Satellite already ship with terrain + sky + fog;
-  // we only add our own DEM source as a fallback (e.g. when streets-v12 kicks
-  // in after a 404). All calls are wrapped in try/catch because Mapbox throws
-  // synchronously when a style hasn't fully resolved its layers yet.
+function addFallbackTerrainAndAtmosphere(instance: mapboxgl.Map) {
+  // Only used for the streets-v12 fallback style which has no built-in
+  // terrain, sky, or fog. Standard / Standard-Satellite handle all of
+  // this themselves — calling setTerrain on them would override their
+  // built-in terrain with our DEM source, causing ugly exaggerated bumps.
   try {
     if (!instance.getSource(DEM_SOURCE_ID)) {
       instance.addSource(DEM_SOURCE_ID, {
@@ -32,12 +26,12 @@ function ensureTerrainAndAtmosphere(instance: mapboxgl.Map, exaggeration: number
       });
     }
   } catch {
-    // Style refused the source (already terrained) — fine.
+    /* already added */
   }
   try {
-    instance.setTerrain({ source: DEM_SOURCE_ID, exaggeration });
+    instance.setTerrain({ source: DEM_SOURCE_ID, exaggeration: 1 });
   } catch {
-    // Style refused setTerrain — fine, the built-in terrain will handle it.
+    /* style refused */
   }
   try {
     if (!instance.getLayer("sky")) {
@@ -52,7 +46,7 @@ function ensureTerrainAndAtmosphere(instance: mapboxgl.Map, exaggeration: number
       });
     }
   } catch {
-    // Style already has a sky layer.
+    /* already has sky */
   }
   try {
     instance.setFog({
@@ -64,7 +58,7 @@ function ensureTerrainAndAtmosphere(instance: mapboxgl.Map, exaggeration: number
       "star-intensity": 0.15,
     });
   } catch {
-    // Style refused fog — fine.
+    /* style refused */
   }
 }
 
@@ -123,18 +117,19 @@ export function MapCanvas({ children }: Props) {
 
     const onStyleLoad = () => {
       const styleKey = lastStyleKeyRef.current as MapStyleKey | "fallback" | null;
-      const override =
-        styleKey && styleKey !== "fallback" ? STYLE_VIEW_OVERRIDES[styleKey] : undefined;
-      const exaggeration = override?.terrainExaggeration ?? 1.1;
+      const isFallback = !styleKey || styleKey === "fallback";
+      const override = !isFallback ? STYLE_VIEW_OVERRIDES[styleKey] : undefined;
       try {
-        instance.setConfigProperty("basemap", "lightPreset", "day");
+        instance.setConfigProperty("basemap", "lightPreset", override?.lightPreset ?? "day");
         instance.setConfigProperty("basemap", "show3dObjects", true);
         instance.setConfigProperty("basemap", "showPedestrianRoads", true);
         instance.setConfigProperty("basemap", "showRoadLabels", true);
       } catch {
         // Style may not support config properties (e.g., fallback)
       }
-      ensureTerrainAndAtmosphere(instance, exaggeration);
+      if (isFallback) {
+        addFallbackTerrainAndAtmosphere(instance);
+      }
       setIsStyleLoaded(true);
     };
 
