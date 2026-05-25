@@ -41,7 +41,11 @@ export function DetailPanel({ visionAvailable = true }: DetailPanelProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
+            className={
+              isMobile
+                ? "fixed inset-0 z-40 bg-black/40"
+                : "fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
+            }
             onClick={() => select(null)}
             aria-hidden="true"
           />
@@ -54,7 +58,7 @@ export function DetailPanel({ visionAvailable = true }: DetailPanelProps) {
             aria-modal="true"
             className={
               isMobile
-                ? "border-border bg-background/95 fixed bottom-0 left-0 right-0 z-50 flex max-h-[90dvh] flex-col gap-4 overflow-hidden rounded-t-3xl border-t p-5 shadow-2xl backdrop-blur-2xl"
+                ? "border-border bg-background fixed bottom-0 left-0 right-0 z-50 flex max-h-[90dvh] flex-col gap-4 overflow-hidden rounded-t-3xl border-t p-5 shadow-2xl"
                 : "border-border bg-background/95 fixed top-1/2 left-1/2 z-50 flex max-h-[85dvh] w-[calc(100%-2rem)] max-w-[520px] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 overflow-hidden rounded-3xl border p-5 shadow-2xl backdrop-blur-2xl"
             }
           >

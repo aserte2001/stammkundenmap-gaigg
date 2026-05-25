@@ -161,16 +161,6 @@
   }
 }
 
-@keyframes pulse-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 oklch(0.72 0.18 145 / 0);
-  }
-  50% {
-    box-shadow: 0 0 0 14px oklch(0.72 0.18 145 / 0.18);
-  }
-}
-
 @keyframes twinkle {
   0%,
   100% {
@@ -212,10 +202,6 @@
   }
 }
 
-.animate-pulse-glow {
-  animation: pulse-glow 2.4s ease-in-out infinite;
-}
-
 .animate-twinkle {
   animation: twinkle 2.8s ease-in-out infinite;
 }
@@ -238,7 +224,6 @@
     scroll-behavior: auto !important;
   }
 
-  .animate-pulse-glow,
   .animate-twinkle,
   .animate-fade-in-up,
   .animate-fade-in {

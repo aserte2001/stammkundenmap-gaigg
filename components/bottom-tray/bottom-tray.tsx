@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { motion, useMotionValue, useTransform, useReducedMotion } from "motion/react";
+import { motion, useMotionValue, useReducedMotion } from "motion/react";
 import { ChevronUp } from "lucide-react";
 import { customers } from "@/lib/customers";
 import { filterCustomers, filterStats, hasActiveFilters, useAppStore } from "@/lib/store";
@@ -80,7 +80,7 @@ export function BottomTray() {
   const [level, setLevel] = useState<SnapLevel>(mobile ? "collapsed" : "peek");
   const containerRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
-  const y = useMotionValue(0);
+  const dragY = useMotionValue(0);
   const snapHeights = useSnapHeights();
   const initialMobileRef = useRef(mobile);
 
@@ -91,14 +91,15 @@ export function BottomTray() {
     }
   }, [mobile]);
 
-  const height = snapHeights[level];
+  const fullHeight = snapHeights.full;
+  const offset = fullHeight - snapHeights[level];
 
   const snapTo = useCallback(
     (newLevel: SnapLevel) => {
       setLevel(newLevel);
-      y.set(0);
+      dragY.set(0);
     },
-    [y],
+    [dragY],
   );
 
   const handleDragEnd = useCallback(
@@ -113,26 +114,24 @@ export function BottomTray() {
         if (level === "full") snapTo("peek");
         else if (level === "peek") snapTo("collapsed");
       } else {
-        y.set(0);
+        dragY.set(0);
       }
     },
-    [level, snapTo, y],
+    [level, snapTo, dragY],
   );
-
-  const borderRadius = useTransform(y, [-100, 0], [28, 24]);
 
   return (
     <motion.div
       ref={containerRef}
-      className="bg-background border-border pointer-events-auto fixed bottom-0 left-0 z-30 flex w-full flex-col overflow-hidden border-t shadow-2xl backdrop-blur-2xl md:left-4 md:w-[400px] md:bg-background/85"
+      className="bg-background border-border pointer-events-auto fixed bottom-0 left-0 z-30 flex w-full flex-col overflow-hidden border-t shadow-2xl md:left-4 md:w-[400px] md:bg-background/85 md:backdrop-blur-2xl"
       style={{
-        height,
-        borderTopLeftRadius: borderRadius,
-        borderTopRightRadius: borderRadius,
+        height: fullHeight,
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
-        y,
+        willChange: "transform",
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
       }}
-      animate={{ height }}
+      animate={{ y: offset }}
       transition={
         prefersReducedMotion
           ? { duration: 0 }
@@ -146,7 +145,7 @@ export function BottomTray() {
         dragConstraints={{ top: -80, bottom: 80 }}
         dragElastic={0.15}
         onDragEnd={handleDragEnd}
-        style={{ y }}
+        style={{ y: dragY }}
         onClick={() => {
           if (level === "collapsed") snapTo("peek");
           else if (level === "peek") snapTo("full");

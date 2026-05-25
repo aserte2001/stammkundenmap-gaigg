@@ -17,7 +17,7 @@ import { MapContext } from "./map-context";
 
 const DEM_SOURCE_ID = "mapbox-dem";
 
-function ensureTerrainAndAtmosphere(instance: mapboxgl.Map, exaggeration: number) {
+function ensureTerrainAndAtmosphere(instance: mapboxgl.Map, exaggeration: number, mobile = false) {
   // Standard / Standard-Satellite already ship with terrain + sky + fog;
   // we only add our own DEM source as a fallback (e.g. when streets-v12 kicks
   // in after a 404). All calls are wrapped in try/catch because Mapbox throws
@@ -35,36 +35,38 @@ function ensureTerrainAndAtmosphere(instance: mapboxgl.Map, exaggeration: number
     // Style refused the source (already terrained) — fine.
   }
   try {
-    instance.setTerrain({ source: DEM_SOURCE_ID, exaggeration });
+    instance.setTerrain({ source: DEM_SOURCE_ID, exaggeration: mobile ? Math.min(exaggeration, 0.8) : exaggeration });
   } catch {
     // Style refused setTerrain — fine, the built-in terrain will handle it.
   }
-  try {
-    if (!instance.getLayer("sky")) {
-      instance.addLayer({
-        id: "sky",
-        type: "sky",
-        paint: {
-          "sky-type": "atmosphere",
-          "sky-atmosphere-sun": [0, 0],
-          "sky-atmosphere-sun-intensity": 12,
-        },
-      });
+  if (!mobile) {
+    try {
+      if (!instance.getLayer("sky")) {
+        instance.addLayer({
+          id: "sky",
+          type: "sky",
+          paint: {
+            "sky-type": "atmosphere",
+            "sky-atmosphere-sun": [0, 0],
+            "sky-atmosphere-sun-intensity": 12,
+          },
+        });
+      }
+    } catch {
+      // Style already has a sky layer.
     }
-  } catch {
-    // Style already has a sky layer.
-  }
-  try {
-    instance.setFog({
-      range: [1, 12],
-      color: "#dfe9f3",
-      "horizon-blend": 0.1,
-      "high-color": "#245cdf",
-      "space-color": "#0b1e36",
-      "star-intensity": 0.15,
-    });
-  } catch {
-    // Style refused fog — fine.
+    try {
+      instance.setFog({
+        range: [1, 12],
+        color: "#dfe9f3",
+        "horizon-blend": 0.1,
+        "high-color": "#245cdf",
+        "space-color": "#0b1e36",
+        "star-intensity": 0.15,
+      });
+    } catch {
+      // Style refused fog — fine.
+    }
   }
 }
 
@@ -98,6 +100,7 @@ export function MapCanvas({ children }: Props) {
     const initialStyle = MAP_STYLES[initialStyleKey]?.style ?? FALLBACK_STYLE;
     lastStyleKeyRef.current = initialStyleKey;
     const initialView = initialIntroCompleteRef.current ? DEFAULT_VIEW : GLOBE_VIEW;
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
 
     let instance: mapboxgl.Map;
     try {
@@ -110,9 +113,9 @@ export function MapCanvas({ children }: Props) {
         bearing: initialView.bearing,
         attributionControl: false,
         projection: { name: "globe" } as mapboxgl.ProjectionSpecification,
-        antialias: true,
+        antialias: !isMobile,
         cooperativeGestures: false,
-        maxPitch: 75,
+        maxPitch: isMobile ? 60 : 75,
       });
       instance.addControl(new mapboxgl.AttributionControl({ compact: true }));
     } catch (err) {
@@ -129,13 +132,13 @@ export function MapCanvas({ children }: Props) {
       const exaggeration = override?.terrainExaggeration ?? 1.1;
       try {
         instance.setConfigProperty("basemap", "lightPreset", "day");
-        instance.setConfigProperty("basemap", "show3dObjects", true);
+        instance.setConfigProperty("basemap", "show3dObjects", !isMobile);
         instance.setConfigProperty("basemap", "showPedestrianRoads", true);
         instance.setConfigProperty("basemap", "showRoadLabels", true);
       } catch {
         // Style may not support config properties (e.g., fallback)
       }
-      ensureTerrainAndAtmosphere(instance, exaggeration);
+      ensureTerrainAndAtmosphere(instance, exaggeration, isMobile);
       setIsStyleLoaded(true);
     };
 

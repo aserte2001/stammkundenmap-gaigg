@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { memo } from "react";
 import Image from "next/image";
 import { Crown, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -21,30 +21,22 @@ type Props = {
   index?: number;
 };
 
-export function CustomerListItem({ customer, index = 0 }: Props) {
-  const selectedId = useAppStore((s) => s.selectedCustomerId);
-  const hoveredId = useAppStore((s) => s.hoveredCustomerId);
+function CustomerListItemInner({ customer }: Props) {
+  const isSelected = useAppStore((s) => s.selectedCustomerId === customer.id);
+  const isHovered = useAppStore((s) => s.hoveredCustomerId === customer.id);
   const select = useAppStore((s) => s.select);
   const hover = useAppStore((s) => s.hover);
 
-  const isSelected = selectedId === customer.id;
-  const isHovered = hoveredId === customer.id;
-
   return (
-    <motion.button
+    <button
       type="button"
       onClick={() => select(customer.id)}
-      onMouseEnter={() => hover(customer.id)}
-      onMouseLeave={() => hover(null)}
-      onFocus={() => hover(customer.id)}
-      onBlur={() => hover(null)}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, delay: Math.min(index * 0.02, 0.4) }}
+      onPointerEnter={() => hover(customer.id)}
+      onPointerLeave={() => hover(null)}
       aria-pressed={isSelected}
       aria-current={isSelected ? "true" : undefined}
       aria-label={`${customer.name} – ${formatStatus(customer.status)}`}
-      className={`group relative flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-colors ${
+      className={`group relative flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-colors duration-150 ${
         isSelected
           ? "border-primary/60 bg-primary/10 shadow-glow-primary"
           : isHovered
@@ -89,6 +81,10 @@ export function CustomerListItem({ customer, index = 0 }: Props) {
           {formatCompactCurrency(customer.yearlyRevenueEur)}
         </span>
       </div>
-    </motion.button>
+    </button>
   );
 }
+
+export const CustomerListItem = memo(CustomerListItemInner, (prev, next) =>
+  prev.customer.id === next.customer.id,
+);
